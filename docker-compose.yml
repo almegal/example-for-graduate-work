@@ -1,0 +1,25 @@
+services:
+  homework:
+    build: .
+    environment:
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DATA_SOURCE=jdbc:postgresql://prod-db-server:5432/db
+      - SPRING_PROFILES_ACTIVE=dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - prod-db-server
+  prod-db-server:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db1-data:/var/lib/postgresql/data
+
+volumes:
+  db1-data:
