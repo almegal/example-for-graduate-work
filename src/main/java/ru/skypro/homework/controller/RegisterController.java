@@ -12,36 +12,36 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.skypro.homework.dto.Login;
+import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.service.AuthService;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "Авторизация",
-        value = "api позволяет авторизоваться пользователю")
-public class AuthController {
+@Api(tags = "Регистрация",
+        value = "api создать нового пользователя")
+public class RegisterController {
 
     private final AuthService authService;
 
-    @ApiOperation(value = "Авторизация по логину и паролю",
-            notes = "Позволяет пользователю войти в систему",
-            response = Login.class)
+    @ApiOperation(value = "Регистрация пользователя",
+            notes = "Позволяет пользователю пройти регистрацию",
+            response = Register.class)
     @ApiResponses(value = {
             @ApiResponse(
-                    code = 200,
-                    message = "OK"),
+                    code = 201,
+                    message = "Created"),
             @ApiResponse(
-                    code = 401,
-                    message = "Unauthorized")
+                    code = 400,
+                    message = "Bad Request")
     })
-    @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody Login login) {
-        if (authService.login(login.getUsername(), login.getPassword())) {
-            return ResponseEntity.ok().build();
+    @PostMapping("/register")
+    public ResponseEntity<Void> register(@RequestBody Register register) {
+        if (authService.register(register)) {
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }
