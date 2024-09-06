@@ -10,7 +10,7 @@ public class OpenApiConstant {
     public static final String LAST_NAME = "Цветков";
     public static final String PHONE = "+79210001234";
     public static final String ROLE = Role.USER.name();
-    public static final String ID = "ID";
+    public static final String ID = "1";
     public static final String CURRENT_PASSWORD = "currentPassword";
     public static final String NEW_PASSWORD = "newPassword";
     public static final String COUNT_COMMENTS = "Count comments";

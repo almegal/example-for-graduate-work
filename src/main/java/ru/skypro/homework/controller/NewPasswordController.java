@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ru.skypro.homework.dto.User;
-import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.dto.NewPassword;
+import ru.skypro.homework.service.NewPasswordService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,14 +20,14 @@ import java.util.List;
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "Пользователи", value = "API для управления пользователями")
-public class UserController {
+@Api(tags = "Пароли", value = "API для управления паролями")
+public class NewPasswordController {
 
-    private final UserService userService;
+    private final NewPasswordService newPasswordService;
 
-    @ApiOperation(value = "Создание пользователя",
-            notes = "Позволяет пользователю создать нового пользователя",
-            response = User.class)
+    @ApiOperation(value = "Создание нового пароля",
+            notes = "Позволяет пользователю создать новый пароль",
+            response = NewPassword.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
@@ -36,33 +36,33 @@ public class UserController {
                     code = 400,
                     message = "Bad Request")
     })
-    @PostMapping("/users")
-    public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
-        if (userService.createUser(user)) {
+    @PostMapping("/new-password")
+    public ResponseEntity<String> createNewPassword(@Valid @RequestBody NewPassword newPassword) {
+        if (newPasswordService.createNewPassword(newPassword)) {
             return ResponseEntity.status(HttpStatus.CREATED).body("Сохранено");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ошибка");
         }
     }
 
-    @ApiOperation(value = "Получение всех пользователей",
-            notes = "Возвращает список всех пользователей",
-            response = User.class,
+    @ApiOperation(value = "Получение всех паролей",
+            notes = "Возвращает список всех паролей",
+            response = NewPassword.class,
             responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
                     message = "OK")
     })
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> users = userService.getUsers();
-        return ResponseEntity.ok(users);
+    @GetMapping("/new-passwords")
+    public ResponseEntity<List<NewPassword>> getNewPasswords() {
+        List<NewPassword> newPasswords = newPasswordService.getNewPasswords();
+        return ResponseEntity.ok(newPasswords);
     }
 
-    @ApiOperation(value = "Получение пользователя по ID",
-            notes = "Возвращает пользователя по его ID",
-            response = User.class)
+    @ApiOperation(value = "Получение пароля по ID",
+            notes = "Возвращает пароль по его ID",
+            response = NewPassword.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -71,19 +71,19 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
+    @GetMapping("/new-password/{id}")
+    public ResponseEntity<NewPassword> getNewPasswordById(@PathVariable Long id) {
+        NewPassword newPassword = newPasswordService.getNewPasswordById(id);
+        if (newPassword != null) {
+            return ResponseEntity.ok(newPassword);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    @ApiOperation(value = "Обновление пользователя",
-            notes = "Обновляет существующего пользователя",
-            response = User.class)
+    @ApiOperation(value = "Обновление пароля",
+            notes = "Обновляет существующий пароль",
+            response = NewPassword.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -92,17 +92,17 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        if (userService.updateUser(id, user)) {
+    @PutMapping("/new-password/{id}")
+    public ResponseEntity<String> updateNewPassword(@PathVariable Long id, @Valid @RequestBody NewPassword newPassword) {
+        if (newPasswordService.updateNewPassword(id, newPassword)) {
             return ResponseEntity.ok().body("Без ошибок");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");
         }
     }
 
-    @ApiOperation(value = "Удаление пользователя",
-            notes = "Удаляет пользователя по его ID",
+    @ApiOperation(value = "Удаление пароля",
+            notes = "Удаляет пароль по его ID",
             response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(
@@ -112,9 +112,9 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        if (userService.deleteUser(id)) {
+    @DeleteMapping("/new-password/{id}")
+    public ResponseEntity<String> deleteNewPassword(@PathVariable Long id) {
+        if (newPasswordService.deleteNewPassword(id)) {
             return ResponseEntity.ok().body("Без ошибок");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");

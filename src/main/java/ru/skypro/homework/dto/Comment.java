@@ -1,7 +1,6 @@
 package ru.skypro.homework.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
@@ -40,4 +39,6 @@ public class Comment {
     @Size(min = 1, max = 255, message = "Текст комментарии должно быть от 1 до 255 символов")
     @ApiModelProperty(value = "Текст коментария", example = OpenApiConstant.TEXT)
     private String text;
+    private Long id;
+
 }

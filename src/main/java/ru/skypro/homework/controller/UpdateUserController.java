@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ru.skypro.homework.dto.User;
-import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.dto.UpdateUser;
+import ru.skypro.homework.service.UpdateUserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,13 +21,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "Пользователи", value = "API для управления пользователями")
-public class UserController {
+public class UpdateUserController {
 
-    private final UserService userService;
+    private final UpdateUserService updateUserService;
 
-    @ApiOperation(value = "Создание пользователя",
-            notes = "Позволяет пользователю создать нового пользователя",
-            response = User.class)
+    @ApiOperation(value = "Обновление пользователя",
+            notes = "Позволяет пользователю обновить свои данные",
+            response = UpdateUser.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
@@ -36,9 +36,9 @@ public class UserController {
                     code = 400,
                     message = "Bad Request")
     })
-    @PostMapping("/users")
-    public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
-        if (userService.createUser(user)) {
+    @PostMapping("/update-user")
+    public ResponseEntity<String> createUpdateUser(@Valid @RequestBody UpdateUser updateUser) {
+        if (updateUserService.createUpdateUser(updateUser)) {
             return ResponseEntity.status(HttpStatus.CREATED).body("Сохранено");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ошибка");
@@ -47,22 +47,22 @@ public class UserController {
 
     @ApiOperation(value = "Получение всех пользователей",
             notes = "Возвращает список всех пользователей",
-            response = User.class,
+            response = UpdateUser.class,
             responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
                     message = "OK")
     })
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> users = userService.getUsers();
-        return ResponseEntity.ok(users);
+    @GetMapping("/update-users")
+    public ResponseEntity<List<UpdateUser>> getUpdateUsers() {
+        List<UpdateUser> updateUsers = updateUserService.getUpdateUsers();
+        return ResponseEntity.ok(updateUsers);
     }
 
     @ApiOperation(value = "Получение пользователя по ID",
             notes = "Возвращает пользователя по его ID",
-            response = User.class)
+            response = UpdateUser.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -71,11 +71,11 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
+    @GetMapping("/update-user/{id}")
+    public ResponseEntity<UpdateUser> getUpdateUserById(@PathVariable Long id) {
+        UpdateUser updateUser = updateUserService.getUpdateUserById(id);
+        if (updateUser != null) {
+            return ResponseEntity.ok(updateUser);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -83,7 +83,7 @@ public class UserController {
 
     @ApiOperation(value = "Обновление пользователя",
             notes = "Обновляет существующего пользователя",
-            response = User.class)
+            response = UpdateUser.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -92,9 +92,9 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        if (userService.updateUser(id, user)) {
+    @PutMapping("/update-user/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUser updateUser) {
+        if (updateUserService.updateUser(id, updateUser)) {
             return ResponseEntity.ok().body("Без ошибок");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");
@@ -112,9 +112,9 @@ public class UserController {
                     code = 404,
                     message = "Not Found")
     })
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/update-user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        if (userService.deleteUser(id)) {
+        if (updateUserService.deleteUser(id)) {
             return ResponseEntity.ok().body("Без ошибок");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");
