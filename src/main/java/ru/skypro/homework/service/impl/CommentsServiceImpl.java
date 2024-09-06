@@ -2,7 +2,8 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.dto.Comments;
+import ru.skypro.homework.dto.Comment;
+
 import ru.skypro.homework.service.CommentsService;
 
 import java.util.List;
@@ -11,28 +12,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentsServiceImpl implements CommentsService {
 
-    @Override
-    public boolean createComments(Comments comments) {
-        return true;
-    }
 
     @Override
-    public List<Comments> getAllComments() {
+    public List<Comment> getCommentsByAdId(Long adId) {
         return null;
     }
 
     @Override
-    public Comments getCommentsById(Long id) {
+    public Comment addComment(Long adId, Comment comment) {
         return null;
     }
 
     @Override
-    public boolean updateComments(Long id, Comments comments) {
-        return true;
+    public void deleteComment(Long adId, Long commentId) {
+
     }
 
     @Override
-    public boolean deleteComments(Long id) {
-        return true;
+    public Comment updateComment(Long adId, Long commentId, Comment comment) {
+        return null;
     }
 }

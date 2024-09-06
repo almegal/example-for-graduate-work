@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 public class Comments {
 
     @Size(min = 0, message = "Количество комментариев не может быть отрицательным")
-    @ApiModelProperty(value = "Количество комментариев", example = OpenApiConstant.COUNT_COMMENTS)
+    @ApiModelProperty(value = "Общее количество комментариев", example = OpenApiConstant.COUNT_COMMENTS)
     private Integer count;
 
     @Size(min = 0, message = "Список комментария не может быть отрицательным")

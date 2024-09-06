@@ -9,8 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import ru.skypro.homework.dto.Comments;
+import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.service.CommentsService;
 
 import javax.validation.Valid;
@@ -20,14 +19,32 @@ import java.util.List;
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "Списки комментариев", value = "API для управления списками комментариев")
+@Api(tags = "Комментарии", value = "API для управления комментариями")
 public class CommentsController {
 
     private final CommentsService commentsService;
 
-    @ApiOperation(value = "Создание списка комментариев",
-            notes = "Позволяет пользователю создать новый список комментариев",
-            response = Comments.class)
+    @ApiOperation(value = "Получение комментариев объявления",
+            notes = "Возвращает список комментариев для указанного объявления",
+            response = Comment.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "OK"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Not Found")
+    })
+    @GetMapping("/ads/{id}/comments")
+    public ResponseEntity<List<Comment>> getComments(@PathVariable("id") Long adId) {
+        List<Comment> comments = commentsService.getCommentsByAdId(adId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @ApiOperation(value = "Добавление комментария к объявлению",
+            notes = "Позволяет добавить комментарий к указанному объявлению",
+            response = Comment.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
@@ -36,88 +53,47 @@ public class CommentsController {
                     code = 400,
                     message = "Bad Request")
     })
-    @PostMapping("/comments-list")
-    public ResponseEntity<String> createComments(@Valid @RequestBody Comments comments) {
-        if (commentsService.createComments(comments)) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Успешно");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ошибка");
-        }
+    @PostMapping("/ads/{id}/comments")
+    public ResponseEntity<Comment> addComment(@PathVariable("id") Long adId,
+                                              @Valid @RequestBody Comment comment) {
+        Comment createdComment = commentsService.addComment(adId, comment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
-    @ApiOperation(value = "Получение всех списков комментариев",
-            notes = "Возвращает список всех списков комментариев",
-            response = Comments.class,
-            responseContainer = "List")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK")
-    })
-    @GetMapping("/comments-list")
-    public ResponseEntity<List<Comments>> getAllComments() {
-        List<Comments> comments = commentsService.getAllComments();
-        return ResponseEntity.ok(comments);
-    }
-
-    @ApiOperation(value = "Получение списка комментариев по ID",
-            notes = "Возвращает список комментариев по его ID",
-            response = Comments.class)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found")
-    })
-    @GetMapping("/comments-list/{id}")
-    public ResponseEntity<Comments> getCommentsById(@PathVariable Long id) {
-        Comments comments = commentsService.getCommentsById(id);
-        if (comments != null) {
-            return ResponseEntity.ok(comments);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @ApiOperation(value = "Обновление списка комментариев",
-            notes = "Обновляет существующий список комментариев",
-            response = Comments.class)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found")
-    })
-    @PutMapping("/comments-list/{id}")
-    public ResponseEntity<String> updateComments(@PathVariable Long id, @Valid @RequestBody Comments comments) {
-        if (commentsService.updateComments(id, comments)) {
-            return ResponseEntity.ok().body("Успешно");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");
-        }
-    }
-
-    @ApiOperation(value = "Удаление списка комментариев",
-            notes = "Удаляет список комментариев по его ID",
+    @ApiOperation(value = "Удаление комментария",
+            notes = "Позволяет удалить комментарий по его идентификатору",
             response = Void.class)
     @ApiResponses(value = {
             @ApiResponse(
+                    code = 204,
+                    message = "No Content"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Not Found")
+    })
+    @DeleteMapping("/ads/{adId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable("adId") Long adId,
+                                              @PathVariable("commentId") Long commentId) {
+        commentsService.deleteComment(adId, commentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @ApiOperation(value = "Обновление комментария",
+            notes = "Позволяет обновить комментарий по его идентификатору",
+            response = Comment.class)
+    @ApiResponses(value = {
+            @ApiResponse(
                     code = 200,
                     message = "OK"),
             @ApiResponse(
                     code = 404,
                     message = "Not Found")
     })
-    @DeleteMapping("/comments-list/{id}")
-    public ResponseEntity<String> deleteComments(@PathVariable Long id) {
-        if (commentsService.deleteComments(id)) {
-            return ResponseEntity.ok().body("Успешно");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ошибка");
-        }
+    @PatchMapping("/ads/{adId}/comments/{commentId}")
+    public ResponseEntity<Comment> updateComment(@PathVariable("adId") Long adId,
+                                                 @PathVariable("commentId") Long commentId,
+                                                 @Valid @RequestBody Comment comment) {
+        Comment updatedComment = commentsService.updateComment(adId, commentId, comment);
+        return ResponseEntity.ok(updatedComment);
     }
 }

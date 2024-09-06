@@ -1,17 +1,17 @@
 package ru.skypro.homework.service;
 
+import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.NewPassword;
+import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 
-import java.util.List;
-
 public interface UserService {
-    boolean createUser(User user);
 
-    List<User> getUsers();
+    boolean updatePassword(NewPassword newPassword);
 
-    User getUserById(Long id);
+    User getAuthenticatedUser();
 
-    boolean updateUser(Long id, User user);
+    User updateAuthenticatedUserInfo(UpdateUser updateUser);
 
-    boolean deleteUser(Long id);
+    boolean updateAuthenticatedUserImage(MultipartFile image);
 }

@@ -14,7 +14,7 @@ import ru.skypro.homework.util.OpenApiConstant;
 public class User {
 
     @NotNull(message = "ID не может быть null")
-    @ApiModelProperty(value = "ID", example = OpenApiConstant.ID)
+    @ApiModelProperty(value = "Id пользователя", example = OpenApiConstant.ID)
     private Integer id;
 
     @NotBlank(message = "Email не может быть пустым или состоять только из пробелов")
@@ -48,6 +48,6 @@ public class User {
             regexp = "^(http|https)://.*$",
             message = "Фото пользователя должно быть URL"
     )
-    @ApiModelProperty(value = "URL изображения пользователя", example = OpenApiConstant.IMAGE)
+    @ApiModelProperty(value = "Ссылка на аватар пользователя", example = OpenApiConstant.IMAGE)
     private String image;
 }

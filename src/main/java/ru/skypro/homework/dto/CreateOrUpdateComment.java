@@ -11,6 +11,6 @@ import ru.skypro.homework.util.OpenApiConstant;
 public class CreateOrUpdateComment {
     @NotBlank
     @Size(min = 8, max = 64)
-    @ApiModelProperty(value = "Обнавления текста комментария", example = OpenApiConstant.TEXT)
+    @ApiModelProperty(value = "Текст комментария", example = OpenApiConstant.TEXT)
     private String text;
 }

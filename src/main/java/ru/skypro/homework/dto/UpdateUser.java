@@ -17,6 +17,7 @@ public class UpdateUser {
 
     @NotBlank(message = "Фамилия не может быть пустой или состоять только из пробелов")
     @Size(min = 3, max = 10, message = "Фамилия должна быть от 3 до 10 символов")
+    @ApiModelProperty(value = "Изменить фамилию пользователя")
     private String lastName;
 
     @NotBlank(message = "Телефон не может быть пустым или состоять только из пробелов")

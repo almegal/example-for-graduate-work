@@ -17,9 +17,9 @@ public class Comment {
 
     @Pattern(
             regexp = "^(http|https)://.*$",
-            message = "Фото автора должно быть URL"
+            message = "Ссылка на аватар автора комментария"
     )
-    @ApiModelProperty(value = "Фото автора комментария", example = OpenApiConstant.IMAGE)
+    @ApiModelProperty(value = "Ссылка на аватар автора комментария", example = OpenApiConstant.IMAGE)
     private String authorImage;
 
     @NotBlank(message = "Поле не может быть пустым или состоять только из пробелов")
@@ -28,8 +28,9 @@ public class Comment {
     private String authorFirstName;
 
     @NotBlank(message = "Дата создания комментария не может быть null")
-    @ApiModelProperty(value = "Дата создания комментария в формате yyyyMMddHHmmss", example = OpenApiConstant.DATE)
-    private Long createdAt;
+    @ApiModelProperty(value = "Дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970",
+            example = OpenApiConstant.DATE)
+    private Integer createdAt;
 
     @NotNull(message = "ID комментария не может быть Null")
     @ApiModelProperty(value = "ID комментария", example = OpenApiConstant.ID)
@@ -37,7 +38,7 @@ public class Comment {
 
     @NotBlank(message = "Текст комментария не может быть пустым или состоять только из пробелов")
     @Size(min = 1, max = 255, message = "Текст комментарии должно быть от 1 до 255 символов")
-    @ApiModelProperty(value = "Текст коментария", example = OpenApiConstant.TEXT)
+    @ApiModelProperty(value = "Текст комментария", example = OpenApiConstant.TEXT)
     private String text;
     private Long id;
 

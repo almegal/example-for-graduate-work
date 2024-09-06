@@ -1,19 +1,17 @@
 package ru.skypro.homework.service;
 
-
-import ru.skypro.homework.dto.Comments;
+import ru.skypro.homework.dto.Comment;
 
 import java.util.List;
 
 public interface CommentsService {
-    public boolean createComments(Comments comments);
 
-    List<Comments> getAllComments();
 
-    Comments getCommentsById(Long id);
+    List<Comment> getCommentsByAdId(Long adId);
 
-    boolean updateComments(Long id, Comments comments);
+    Comment addComment(Long adId, Comment comment);
 
-    boolean deleteComments(Long id);
+    void deleteComment(Long adId, Long commentId);
 
+    Comment updateComment(Long adId, Long commentId, Comment comment);
 }
