@@ -3,16 +3,17 @@ package ru.skypro.homework.dto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
-public class UpdateUser {
+public class UpdateUserDto {
     @NotBlank(message = "Имя не может быть пустым или состоять только из пробелов")
     @Size(min = 3, max = 10, message = "Имя должно быть от 3 до 10 символов")
-    @ApiModelProperty(value = "Изменить имя пользователя", example = OpenApiConstant.NAME)
+    @ApiModelProperty(
+            value = "Изменить имя пользователя",
+            example = OpenApiConstant.NAME)
     private String firstName;
 
     @NotBlank(message = "Фамилия не может быть пустой или состоять только из пробелов")

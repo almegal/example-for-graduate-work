@@ -8,13 +8,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.NewPassword;
-import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.service.UserService;
-
 import javax.validation.Valid;
 
 @Slf4j
@@ -32,16 +37,20 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
-                    message = "OK"),
+                    message = "OK"
+            ),
             @ApiResponse(
                     code = 401,
-                    message = "Unauthorized"),
+                    message = "Unauthorized"
+            ),
             @ApiResponse(
                     code = 403,
-                    message = "Forbidden")
+                    message = "Forbidden"
+            )
     })
     @PostMapping("/users/set_password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody NewPassword newPassword) {
+    public ResponseEntity<Void> updatePassword(
+            @Valid @RequestBody NewPasswordDto newPassword) {
         if (userService.updatePassword(newPassword)) {
             return ResponseEntity.ok().build();
         } else {
@@ -51,18 +60,20 @@ public class UserController {
 
     @ApiOperation(value = "Получение информации об авторизованном пользователе",
             notes = "Возвращает информацию об авторизованном пользователе",
-            response = User.class)
+            response = UserDto.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
-                    message = "OK"),
+                    message = "OK"
+            ),
             @ApiResponse(
                     code = 401,
-                    message = "Unauthorized")
+                    message = "Unauthorized"
+            )
     })
     @GetMapping("/users/me")
-    public ResponseEntity<User> getAuthenticatedUser() {
-        User user = userService.getAuthenticatedUser();
+    public ResponseEntity<UserDto> getAuthenticatedUser() {
+        UserDto user = userService.getAuthenticatedUser();
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
@@ -72,18 +83,21 @@ public class UserController {
 
     @ApiOperation(value = "Обновление информации об авторизованном пользователе",
             notes = "Позволяет пользователю обновить свою информацию",
-            response = User.class)
+            response = UserDto.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
-                    message = "OK"),
+                    message = "OK"
+            ),
             @ApiResponse(
                     code = 401,
-                    message = "Unauthorized")
+                    message = "Unauthorized"
+            )
     })
     @PatchMapping("/users/me")
-    public ResponseEntity<User> updateAuthenticatedUserInfo(@Valid @RequestBody UpdateUser updateUser) {
-        User user = userService.updateAuthenticatedUserInfo(updateUser);
+    public ResponseEntity<UserDto> updateAuthenticatedUserInfo(
+            @Valid @RequestBody UpdateUserDto updateUser) {
+        UserDto user = userService.updateAuthenticatedUserInfo(updateUser);
         if (updateUser != null) {
             return ResponseEntity.ok(user);
         } else {
@@ -97,17 +111,21 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
-                    message = "OK"),
+                    message = "OK"
+            ),
             @ApiResponse(
                     code = 401,
-                    message = "Unauthorized")
+                    message = "Unauthorized"
+            )
     })
     @PatchMapping("/users/me/image")
-    public ResponseEntity<Void> updateAuthenticatedUserImage(@RequestParam("image") MultipartFile image) {
+    public ResponseEntity<Void> updateAuthenticatedUserImage(
+            @RequestParam("image") MultipartFile image) {
         if (userService.updateAuthenticatedUserImage(image)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
         }
     }
 }
