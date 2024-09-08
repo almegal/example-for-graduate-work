@@ -31,7 +31,7 @@ public class AdsController {
 
 
     @ApiOperation(value = "Получение всех объявлений",
-            notes = "Возвращает список всех объявлений",
+            notes = "Возвращает общее количество и список всех объявлений",
             response = AdsDto.class,
             responseContainer = "List")
     @ApiResponses(value = {
