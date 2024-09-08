@@ -9,7 +9,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-
 @Data
 @ApiModel(value = "Ad", description = "Модель объявления")
 public class AdDto {
