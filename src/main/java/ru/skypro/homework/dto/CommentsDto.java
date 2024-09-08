@@ -1,11 +1,13 @@
 package ru.skypro.homework.dto;
 
 import java.util.List;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 import javax.validation.constraints.Size;
 @Data
+@ApiModel(value = "Comments", description = "Модель списка комментариев")
 public class CommentsDto {
 
     @Size(min = 0, message = "Количество комментариев не может быть отрицательным")

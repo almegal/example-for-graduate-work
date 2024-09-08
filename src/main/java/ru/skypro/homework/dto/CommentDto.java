@@ -1,5 +1,6 @@
 package ru.skypro.homework.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
@@ -9,6 +10,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
+@ApiModel(value = "Comment", description = "Модель комментария")
 public class CommentDto {
     @NotNull(message = "ID автора комментария не может быть Null")
     @ApiModelProperty(
