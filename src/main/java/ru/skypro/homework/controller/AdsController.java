@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.service.AdsService;
@@ -31,7 +32,7 @@ public class AdsController {
 
     @ApiOperation(value = "Получение всех объявлений",
             notes = "Возвращает список всех объявлений",
-            response = AdDto.class,
+            response = AdsDto.class,
             responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,8 +40,8 @@ public class AdsController {
                     message = "OK")
     })
     @GetMapping
-    public ResponseEntity<List<AdDto>> getAllAds() {
-        List<AdDto> ads = adsService.getAllAds();
+    public ResponseEntity<AdsDto> getAds() {
+        AdsDto ads = adsService.getAds();
         return ResponseEntity.ok(ads);
     }
 

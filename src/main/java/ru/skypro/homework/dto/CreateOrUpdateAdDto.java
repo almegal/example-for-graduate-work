@@ -4,11 +4,13 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@ApiModel(value = "CreateOrUpdateAd", description = "Модель создания или обновления объявления")
 public class CreateOrUpdateAdDto {
 
     @NotBlank(message = "Заголовок не может быть пустым или состоять только из пробелов")
