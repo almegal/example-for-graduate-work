@@ -1,14 +1,16 @@
 package ru.skypro.homework.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(value = "UpdateUser", description = "Модель для обновления информации о пользователе")
 public class UpdateUserDto {
     @NotBlank(message = "Имя не может быть пустым или состоять только из пробелов")

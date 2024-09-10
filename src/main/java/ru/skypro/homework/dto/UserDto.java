@@ -1,23 +1,25 @@
 package ru.skypro.homework.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
 @ApiModel(value = "User", description = "Модель пользователя")
+@Builder
 public class UserDto {
 
     @NotNull(message = "ID не может быть null")
     @ApiModelProperty(
             value = "Id пользователя",
             example = OpenApiConstant.ID)
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Email не может быть пустым или состоять только из пробелов")
     @Pattern(
