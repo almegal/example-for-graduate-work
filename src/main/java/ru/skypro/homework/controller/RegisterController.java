@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.service.AuthService;
 
 @Slf4j
@@ -27,7 +27,7 @@ public class RegisterController {
 
     @ApiOperation(value = "Регистрация пользователя",
             notes = "Позволяет пользователю пройти регистрацию",
-            response = Register.class)
+            response = RegisterDto.class)
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
@@ -37,8 +37,8 @@ public class RegisterController {
                     message = "Bad Request")
     })
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody Register register) {
-        if (authService.register(register)) {
+    public ResponseEntity<Void> register(@RequestBody RegisterDto registerDto) {
+        if (authService.register(registerDto)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
