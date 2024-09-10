@@ -2,10 +2,13 @@ package ru.skypro.homework.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(value = "Register", description = "Модель для регистрации пользователя")
 public class RegisterDto {
     @ApiModelProperty(value = "Имя пользователя", example = OpenApiConstant.USER_NAME)
