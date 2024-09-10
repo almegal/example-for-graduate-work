@@ -1,5 +1,7 @@
 package ru.skypro.homework.util;
 
+import ru.skypro.homework.dto.Role;
+
 public class OpenApiConstant {
     public static final String USER_NAME = "SomeUserName";
     public static final String USER_PASS = "secrestpassintheworld";
