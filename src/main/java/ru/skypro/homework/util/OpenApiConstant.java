@@ -21,7 +21,4 @@ public class OpenApiConstant {
     public static final String AD_IMAGE = "File_path";;
     public static final String COUNT_ADS = "Count ads";
     public static final String LIST_ADS = "List ads";
-
-
 }
-
