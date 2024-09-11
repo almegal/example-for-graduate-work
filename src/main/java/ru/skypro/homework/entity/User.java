@@ -36,6 +36,7 @@ public class User {
     @ColumnDefault(value = "0")
     @Enumerated(EnumType.ORDINAL)
     private Role role;
+    @NotBlank
     private String image;
     @NotBlank
     private String password;
