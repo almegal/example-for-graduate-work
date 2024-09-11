@@ -1,13 +1,15 @@
 package ru.skypro.homework.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(
         value = "CreateOrUpdateComment",
         description = "Модель для создания или обновления комментария")

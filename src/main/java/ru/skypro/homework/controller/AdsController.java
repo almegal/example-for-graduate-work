@@ -4,20 +4,29 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.service.AdsService;
-import javax.validation.Valid;
-import java.util.List;
+import ru.skypro.homework.service.AdService;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -27,7 +36,7 @@ import java.util.List;
 @Api(tags = "Объявления", value = "API для работы с объявлениями")
 public class AdsController {
 
-    private final AdsService adsService;
+    private final AdService adsService;
 
 
     @ApiOperation(value = "Получение всех объявлений",
@@ -172,8 +181,9 @@ public class AdsController {
                     message = "Not found")
     })
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> updateImageAd(@PathVariable Integer id, @Valid @RequestBody MultipartFile file) {
-        byte[] image  = adsService.updateImageAd(id, file);
+    public ResponseEntity<byte[]> updateImageAd(@PathVariable Integer id,
+                                                @Valid @RequestBody MultipartFile file) {
+        byte[] image = adsService.updateImageAd(id, file);
         return ResponseEntity.ok(image);
     }
 
