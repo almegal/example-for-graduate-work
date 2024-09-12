@@ -18,14 +18,11 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String authorImage;
-    @NotBlank
-    private String authorFirstName;
     @NotNull
     private Long createdAt;
     @NotBlank
     private String text;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Long author;
+    private User author;
 }
