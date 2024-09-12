@@ -17,7 +17,10 @@ public interface CommentMapper {
 
     List<CommentDto> toDtos(List<Comment> comments);
 
+    @Mapping(source = "author.authorImage", target = "authorImage")
+    @Mapping(source = "author.firstName", target = "authorFirstName")
     @Mapping(source = "id", target = "pk")
+    @Mapping(source = "author.id", target = "author")
     CommentDto toDto(Comment comment);
 
     void toEntityFromCreateUpdatDto(CreateOrUpdateCommentDto dto,
