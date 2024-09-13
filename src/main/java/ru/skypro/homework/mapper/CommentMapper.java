@@ -1,6 +1,7 @@
 package ru.skypro.homework.mapper;
 
 import java.util.List;
+import java.util.function.BinaryOperator;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,7 +18,7 @@ public interface CommentMapper {
 
     List<CommentDto> toDtos(List<Comment> comments);
 
-    @Mapping(source = "author.authorImage", target = "authorImage")
+    @Mapping(source = "author.image", target = "authorImage")
     @Mapping(source = "author.firstName", target = "authorFirstName")
     @Mapping(source = "id", target = "pk")
     @Mapping(source = "author.id", target = "author")
