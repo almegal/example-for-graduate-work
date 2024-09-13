@@ -1,21 +1,21 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Login;
+import ru.skypro.homework.Repository.UserRepository;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.service.UserService;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final Login login;
-
-    public UserServiceImpl(Login login) {
-        this.login = login;
-    }
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @Override
     public boolean updatePassword(NewPasswordDto newPassword) {

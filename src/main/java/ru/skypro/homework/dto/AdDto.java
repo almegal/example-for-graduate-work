@@ -2,27 +2,31 @@ package ru.skypro.homework.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import ru.skypro.homework.util.OpenApiConstant;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Data;
+import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(value = "Ad", description = "Модель объявления")
 public class AdDto {
 
     @NotNull(message = "ID автора объявления не может быть null")
     @ApiModelProperty(value = "ID автора объявления", example = OpenApiConstant.ID)
-    private Integer author;
+    private Long author;
 
     @ApiModelProperty(value = "Ссылка на картинку объявления", example = OpenApiConstant.AD_IMAGE)
     private String image;
 
+    // Согласно описанию апи мы сами задаем айди
+    // не генерируем его?
     @NotNull(message = "ID объявления не может быть null")
     @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.ID)
-    private Integer pk;
+    private Long pk;
 
     @Min(value = 0, message = "Цена не может быть меньше 0")
     @Max(value = 10_000_000, message = "Цена не может превышать 10 000 00")

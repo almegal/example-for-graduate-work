@@ -1,13 +1,15 @@
 package ru.skypro.homework.dto;
 
-import java.util.List;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
-import javax.validation.constraints.Size;
 
 @Data
+@Builder
 @ApiModel(value = "Ads", description = "Модель списка объявлений")
 public class AdsDto {
 

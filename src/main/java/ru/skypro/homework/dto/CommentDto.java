@@ -2,12 +2,12 @@ package ru.skypro.homework.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import ru.skypro.homework.util.OpenApiConstant;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import lombok.Data;
+import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
 @ApiModel(value = "Comment", description = "Модель комментария")
@@ -16,7 +16,7 @@ public class CommentDto {
     @ApiModelProperty(
             value = "ID автора комментария",
             example = OpenApiConstant.ID)
-    private Integer author;
+    private Long author;
 
     @Pattern(
             regexp = "^(http|https)://.*$",
@@ -38,13 +38,13 @@ public class CommentDto {
     @ApiModelProperty(
             value = "Дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970",
             example = OpenApiConstant.DATE)
-    private Integer createdAt;
+    private Long createdAt;
 
     @NotNull(message = "ID комментария не может быть Null")
     @ApiModelProperty(
             value = "ID комментария",
             example = OpenApiConstant.ID)
-    private Integer pk;
+    private Long pk;
 
     @NotBlank(message = "Текст комментария не может быть пустым или состоять только из пробелов")
     @Size(min = 1, max = 255, message = "Текст комментарии должно быть от 1 до 255 символов")
