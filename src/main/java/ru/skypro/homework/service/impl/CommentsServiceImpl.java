@@ -3,17 +3,16 @@ package ru.skypro.homework.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.Repository.CommentRepository;
-import ru.skypro.homework.controller.CommentsController;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.entity.User;
+import ru.skypro.homework.exception.IllegalArgumentException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.service.CommentsService;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,13 +62,15 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
-    public CommentDto updateComment(Long adId, Long commentId, CreateOrUpdateCommentDto updateCommentDto) {
+    public CommentDto updateComment(Long adId,
+                                    Long commentId,
+                                    CreateOrUpdateCommentDto updateCommentDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Комментарий не найден"));
         if (!comment.getAd().getId().equals(adId)) {
             throw new IllegalArgumentException("Комментарий не принадлежит данному объявлению");
         }
-        commentMapper.toEntityFromCreateUpdatDto(updateCommentDto,comment);
+        commentMapper.toEntityFromCreateUpdatDto(updateCommentDto, comment);
         Comment updatedComment = commentRepository.save(comment);
         return commentMapper.toDto(updatedComment);
     }
