@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.service.CommentsService;
 import java.util.List;
 
@@ -118,8 +119,8 @@ public class CommentsController {
     @PatchMapping("/ads/{adId}/comments/{commentId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Long adId,
                                                     @PathVariable("commentId") Long commentId,
-                                                    @Valid @RequestBody CommentDto commentDto) {
-        CommentDto commentDto1 = commentsService.updateComment(adId, commentId, commentDto);
+                                                    @Valid @RequestBody CreateOrUpdateCommentDto createOrUpdateCommentDto) {
+        CommentDto commentDto1 = commentsService.updateComment(adId, commentId, createOrUpdateCommentDto);
         return ResponseEntity.ok(commentDto1);
     }
 }
