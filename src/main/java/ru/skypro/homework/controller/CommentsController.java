@@ -44,7 +44,6 @@ public class CommentsController {
     })
     @GetMapping("/ads/{id}/comments")
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Long adId) {
-        // Изменено: Возвращаемый тип и получение первого элемента списка
         CommentsDto commentsDto = commentsService.getCommentsByAdId(adId).get(0);
         return ResponseEntity.ok(commentsDto);
     }
