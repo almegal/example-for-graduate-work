@@ -9,7 +9,7 @@ public interface CommentsService {
 
     List<CommentsDto> getCommentsByAdId(Long adId);
 
-    CommentDto addComment(Long adId, CommentDto comment);
+    CommentDto addComment(Long adId, CreateOrUpdateCommentDto createCommentDto);
 
     void deleteComment(Long adId, Long commentId);
 

@@ -24,8 +24,6 @@ import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.service.CommentsService;
 
-import java.util.List;
-
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
@@ -40,21 +38,15 @@ public class CommentsController {
             response = CommentsDto.class,
             responseContainer = "List")
     @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 401,
-                    message = "Unauthorized"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found"
-            )
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping("/ads/{id}/comments")
-    public ResponseEntity<List<CommentsDto>> getComments(@PathVariable("id") Long adId) {
-        List<CommentsDto> commentsDTO1 = commentsService.getCommentsByAdId(adId);
-        return ResponseEntity.ok(commentsDTO1);
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Long adId) {
+        // Изменено: Возвращаемый тип и получение первого элемента списка
+        CommentsDto commentsDto = commentsService.getCommentsByAdId(adId).get(0);
+        return ResponseEntity.ok(commentsDto);
     }
 
     @ApiOperation(value = "Добавление комментария к объявлению",
@@ -72,28 +64,20 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PostMapping("/ads/{id}/comments")
-    public ResponseEntity<CommentDto> addComments(@PathVariable("id") Long adId,
-                                                  @Valid @RequestBody CommentDto commentDto) {
-        CommentDto commentDto1 = commentsService.addComment(adId, commentDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto1);
+    public ResponseEntity<CommentDto> addComment(
+            @PathVariable("id") Long adId,
+            @Valid @RequestBody CreateOrUpdateCommentDto createCommentDto) {
+        CommentDto commentDto = commentsService.addComment(adId, createCommentDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
     }
 
     @ApiOperation(value = "Удаление комментария",
-            notes = "Позволяет удалить комментарий по его идентификатору",
-            response = CommentDto.class)
+            notes = "Позволяет удалить комментарий по его идентификатору")
     @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 401,
-                    message = "Unauthorized"),
-            @ApiResponse(
-                    code = 403,
-                    message = "Forbidden"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found")
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
     })
     @DeleteMapping("/ads/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Long adId,
@@ -120,12 +104,11 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PatchMapping("/ads/{adId}/comments/{commentId}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Long adId,
-                        @PathVariable("commentId") Long commentId,
-                        @Valid @RequestBody CreateOrUpdateCommentDto createOrUpdateCommentDto) {
-        CommentDto commentDto1 = commentsService.updateComment(adId,
-                                                               commentId,
-                                                               createOrUpdateCommentDto);
-        return ResponseEntity.ok(commentDto1);
+    public ResponseEntity<CommentDto> updateComment(
+            @PathVariable("adId") Long adId,
+            @PathVariable("commentId") Long commentId,
+            @Valid @RequestBody CreateOrUpdateCommentDto updateCommentDto) {
+        CommentDto commentDto = commentsService.updateComment(adId, commentId, updateCommentDto);
+        return ResponseEntity.ok(commentDto);
     }
 }

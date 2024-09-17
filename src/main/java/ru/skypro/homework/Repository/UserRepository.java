@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.entity.User;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
@@ -18,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public int updatePassword(@Param("newPassword") String newPassword,
                               @Param("email") String email,
                               @Param("oldPassword") String oldPassword);
+
+
+    Optional<User> findByUserName(String userName);
+
 }

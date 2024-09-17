@@ -6,14 +6,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import ru.skypro.homework.ConstantGeneratorFotTest;
+import ru.skypro.homework.Repository.AdRepository;
 import ru.skypro.homework.Repository.CommentRepository;
+import ru.skypro.homework.Repository.UserRepository;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
-import ru.skypro.homework.entity.User;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.service.impl.CommentsServiceImpl;
 
@@ -31,6 +37,12 @@ class CommentsServiceImplTest {
     private CommentRepository commentRepository;
 
     @Mock
+    private AdRepository adRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private CommentMapper commentMapper;
 
     @InjectMocks
@@ -40,21 +52,13 @@ class CommentsServiceImplTest {
     private CommentDto commentDto;
     private CreateOrUpdateCommentDto createOrUpdateCommentDto;
     private Ad ad;
-    private User user;
+    private ru.skypro.homework.entity.User user;
 
     @BeforeEach
     void setUp() {
-        ad = new Ad();
-        ad.setId(1L);  // Используем Integer для id
-
+        ad = ConstantGeneratorFotTest.adGenerator();
         user = ConstantGeneratorFotTest.userGenerator();
-
-        comment = new Comment();
-        comment.setId(1L);
-        comment.setText("Test Comment");
-        comment.setCreatedAt(System.currentTimeMillis());
-        comment.setAd(ad);  // Устанавливаем объект Ad
-        comment.setAuthor(user);  // Устанавливаем объект User
+        comment = ConstantGeneratorFotTest.commentGenerator(ad, user);
 
         commentDto = new CommentDto();
         commentDto.setPk(1L);
@@ -80,19 +84,26 @@ class CommentsServiceImplTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     void addComment() {
-        when(commentRepository.findAdById(1L)).thenReturn(ad);
-        when(commentRepository.findAuthorById(ConstantGeneratorFotTest.USER_ID)).thenReturn(user);
+        // Set up the security context
+        UserDetails userDetails = User.withUsername("testuser").password("password").roles("USER").build();
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+        SecurityContextHolder.setContext(securityContext);
+
+        when(adRepository.findById(1L)).thenReturn(Optional.of(ad));
+        when(userRepository.findByUserName(anyString())).thenReturn(Optional.of(user));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         when(commentMapper.toEntity(any(CreateOrUpdateCommentDto.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
-        CommentDto savedCommentDto = commentsService.addComment(1L, commentDto);
+        CommentDto savedCommentDto = commentsService.addComment(1L, createOrUpdateCommentDto);
 
         assertNotNull(savedCommentDto);
         assertEquals("Test Comment", savedCommentDto.getText());
-        verify(commentRepository, times(1)).findAdById(1L);
-        verify(commentRepository, times(1)).findAuthorById(ConstantGeneratorFotTest.USER_ID);
+        verify(adRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findByUserName(anyString());
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
 
@@ -100,7 +111,7 @@ class CommentsServiceImplTest {
     void deleteComment() {
         when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
 
-        commentsService.deleteComment(1L, 1L);  // Используем Long для adId
+        commentsService.deleteComment(1L, 1L);
 
         verify(commentRepository, times(1)).findById(1L);
         verify(commentRepository, times(1)).delete(any(Comment.class));
@@ -112,7 +123,7 @@ class CommentsServiceImplTest {
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
-        CommentDto updatedCommentDto = commentsService.updateComment(1L, 1L, createOrUpdateCommentDto);  // Используем Long для adId
+        CommentDto updatedCommentDto = commentsService.updateComment(1L, 1L, createOrUpdateCommentDto);
 
         assertNotNull(updatedCommentDto);
         assertEquals("Test Comment", updatedCommentDto.getText());
