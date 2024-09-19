@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -23,6 +24,8 @@ import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.service.CommentsService;
+
+import java.util.List;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -44,8 +47,11 @@ public class CommentsController {
     })
     @GetMapping("/ads/{id}/comments")
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Long adId) {
-        CommentsDto commentsDto = commentsService.getCommentsByAdId(adId).get(0);
-        return ResponseEntity.ok(commentsDto);
+        List<CommentsDto> commentsList = commentsService.getCommentsByAdId(adId);
+        if (commentsList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарии не найдены");
+        }
+        return ResponseEntity.ok(commentsList.get(0));
     }
 
     @ApiOperation(value = "Добавление комментария к объявлению",
@@ -81,7 +87,11 @@ public class CommentsController {
     @DeleteMapping("/ads/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Long adId,
                                               @PathVariable("commentId") Long commentId) {
-        commentsService.deleteComment(adId, commentId);
+        try {
+            commentsService.deleteComment(adId, commentId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -107,7 +117,12 @@ public class CommentsController {
             @PathVariable("adId") Long adId,
             @PathVariable("commentId") Long commentId,
             @Valid @RequestBody CreateOrUpdateCommentDto updateCommentDto) {
-        CommentDto commentDto = commentsService.updateComment(adId, commentId, updateCommentDto);
+        CommentDto commentDto;
+        try {
+            commentDto = commentsService.updateComment(adId, commentId, updateCommentDto);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
+        }
         return ResponseEntity.ok(commentDto);
     }
 }
