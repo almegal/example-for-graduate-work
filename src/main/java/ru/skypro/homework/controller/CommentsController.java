@@ -16,10 +16,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import javax.validation.Valid;
+
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.service.CommentsService;
+
 import java.util.List;
 
 @Slf4j
@@ -36,21 +41,17 @@ public class CommentsController {
             response = CommentsDto.class,
             responseContainer = "List")
     @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 401,
-                    message = "Unauthorized"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found"
-            )
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping("/ads/{id}/comments")
-    public ResponseEntity<List<CommentsDto>> getComments(@PathVariable("id") Long adId) {
-        List<CommentsDto> commentsDTO1 = commentsService.getCommentsByAdId(adId);
-        return ResponseEntity.ok(commentsDTO1);
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Long adId) {
+        List<CommentsDto> commentsList = commentsService.getCommentsByAdId(adId);
+        if (commentsList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарии не найдены");
+        }
+        return ResponseEntity.ok(commentsList.get(0));
     }
 
     @ApiOperation(value = "Добавление комментария к объявлению",
@@ -68,33 +69,29 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PostMapping("/ads/{id}/comments")
-    public ResponseEntity<CommentDto> addComments(@PathVariable("id") Long adId,
-                                                  @Valid @RequestBody CommentDto commentDto) {
-        CommentDto commentDto1 = commentsService.addComment(adId, commentDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto1);
+    public ResponseEntity<CommentDto> addComment(
+            @PathVariable("id") Long adId,
+            @Valid @RequestBody CreateOrUpdateCommentDto createCommentDto) {
+        CommentDto commentDto = commentsService.addComment(adId, createCommentDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
     }
 
     @ApiOperation(value = "Удаление комментария",
-            notes = "Позволяет удалить комментарий по его идентификатору",
-            response = CommentDto.class)
+            notes = "Позволяет удалить комментарий по его идентификатору")
     @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 401,
-                    message = "Unauthorized"),
-            @ApiResponse(
-                    code = 403,
-                    message = "Forbidden"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not Found")
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
     })
     @DeleteMapping("/ads/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Long adId,
                                               @PathVariable("commentId") Long commentId) {
-        commentsService.deleteComment(adId, commentId);
+        try {
+            commentsService.deleteComment(adId, commentId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -116,10 +113,16 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PatchMapping("/ads/{adId}/comments/{commentId}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Long adId,
-                                                    @PathVariable("commentId") Long commentId,
-                                                    @Valid @RequestBody CommentDto commentDto) {
-        CommentDto commentDto1 = commentsService.updateComment(adId, commentId, commentDto);
-        return ResponseEntity.ok(commentDto1);
+    public ResponseEntity<CommentDto> updateComment(
+            @PathVariable("adId") Long adId,
+            @PathVariable("commentId") Long commentId,
+            @Valid @RequestBody CreateOrUpdateCommentDto updateCommentDto) {
+        CommentDto commentDto;
+        try {
+            commentDto = commentsService.updateComment(adId, commentId, updateCommentDto);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
+        }
+        return ResponseEntity.ok(commentDto);
     }
 }
