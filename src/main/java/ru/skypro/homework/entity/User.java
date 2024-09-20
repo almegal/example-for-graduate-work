@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,7 +34,7 @@ public class User {
     private String lastName;
     @NotBlank
     private String phone;
-    @NotBlank
+    @NotNull
     @ColumnDefault(value = "0")
     @Enumerated(EnumType.ORDINAL)
     private Role role;

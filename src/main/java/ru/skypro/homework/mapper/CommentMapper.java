@@ -1,7 +1,6 @@
 package ru.skypro.homework.mapper;
 
 import java.util.List;
-import java.util.function.BinaryOperator;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
