@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,6 @@ import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.service.UserService;
-import javax.validation.Valid;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -53,9 +53,8 @@ public class UserController {
             @Valid @RequestBody NewPasswordDto newPassword) {
         if (userService.updatePassword(newPassword)) {
             return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ApiOperation(value = "Получение информации об авторизованном пользователе",
@@ -76,9 +75,8 @@ public class UserController {
         UserDto user = userService.getAuthenticatedUser();
         if (user != null) {
             return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ApiOperation(value = "Обновление информации об авторизованном пользователе",
@@ -100,9 +98,8 @@ public class UserController {
         UserDto user = userService.updateAuthenticatedUserInfo(updateUser);
         if (updateUser != null) {
             return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ApiOperation(value = "Обновление аватара авторизованного пользователя",
@@ -123,9 +120,7 @@ public class UserController {
             @RequestParam("image") MultipartFile image) {
         if (userService.updateAuthenticatedUserImage(image)) {
             return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

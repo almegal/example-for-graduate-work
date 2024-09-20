@@ -38,8 +38,8 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginDto loginDto) {
-        ;
-        if (authService.login(loginDto.getUsername(), loginDto.getPassword())) {
+        boolean isLogin = authService.login(loginDto);
+        if (isLogin) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
