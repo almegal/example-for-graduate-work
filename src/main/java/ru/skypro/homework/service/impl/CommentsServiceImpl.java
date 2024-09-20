@@ -40,7 +40,11 @@ public class CommentsServiceImpl implements CommentsService {
 
     @Override
     public CommentDto addComment(Long adId, CreateOrUpdateCommentDto createCommentDto) {
-        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+        User user = userRepository
+                .findByEmail(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
         Ad ad = adRepository.findById(adId)
