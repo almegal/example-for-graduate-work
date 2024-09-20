@@ -1,5 +1,7 @@
 package ru.skypro.homework.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
@@ -18,4 +20,8 @@ public class CreateOrUpdateCommentDto {
     @Size(min = 8, max = 64)
     @ApiModelProperty(value = "Текст комментария", example = OpenApiConstant.TEXT)
     private String text;
+    @JsonCreator
+    public CreateOrUpdateCommentDto(@JsonProperty("text") String text) {
+        this.text = text;
+    }
 }

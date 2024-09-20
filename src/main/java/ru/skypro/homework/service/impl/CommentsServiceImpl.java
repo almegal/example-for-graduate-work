@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.Repository.CommentRepository;
 import ru.skypro.homework.Repository.AdRepository;
+import ru.skypro.homework.Repository.CommentRepository;
 import ru.skypro.homework.Repository.UserRepository;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
@@ -40,20 +40,21 @@ public class CommentsServiceImpl implements CommentsService {
 
     @Override
     public CommentDto addComment(Long adId, CreateOrUpdateCommentDto createCommentDto) {
-        Comment comment = commentMapper.toEntity(createCommentDto);
+        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new IllegalArgumentException("Объявление не найдено"));
 
-        // Получаем текущего пользователя из контекста безопасности
-        String username = getCurrentUsername();
-        User author = userRepository.findByUserName(username)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-
+        Comment comment = new Comment();
+        comment.setText(createCommentDto.getText());
         comment.setAd(ad);
-        comment.setAuthor(author);
+        comment.setAuthor(user);
         comment.setCreatedAt(System.currentTimeMillis());
-        Comment savedComment = commentRepository.save(comment);
-        return commentMapper.toDto(savedComment);
+
+        comment = commentRepository.save(comment);
+
+        return commentMapper.toDto(comment);
     }
 
     @Override

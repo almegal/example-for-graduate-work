@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class ConstantGeneratorFotTest {
     public static final Long USER_ID = new Random().nextLong();
-    public static final String USER_EMAIL = "somecool@mail.com";
+    public static final String USER_EMAIL = "testuser@example.com"; // Изменено на "testuser@example.com"
     public static final String USER_FIRST_NAME = "Jonh";
     public static final String USER_LAST_NAME = "Show";
     public static final String USER_PHONE = "9112223344";
@@ -26,9 +26,13 @@ public class ConstantGeneratorFotTest {
     public static final String NEW_USER_PASSWORD = "notsecretpassword";
 
     public static User userGenerator() {
+        return userGenerator(USER_EMAIL);
+    }
+
+    public static User userGenerator(String email) {
         User user = new User();
         user.setId(USER_ID);
-        user.setEmail(USER_EMAIL);
+        user.setEmail(email); // Используем переданный email
         user.setFirstName(USER_FIRST_NAME);
         user.setLastName(USER_LAST_NAME);
         user.setPhone(USER_PHONE);

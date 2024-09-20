@@ -84,26 +84,30 @@ class CommentsServiceImplTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = "testuser@example.com")
     void addComment() {
         // Set up the security context
-        UserDetails userDetails = User.withUsername("testuser").password("password").roles("USER").build();
+        UserDetails userDetails = User.withUsername("testuser@example.com").password("password").roles("USER").build();
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
         SecurityContextHolder.setContext(securityContext);
 
         when(adRepository.findById(1L)).thenReturn(Optional.of(ad));
-        when(userRepository.findByUserName(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
-        when(commentMapper.toEntity(any(CreateOrUpdateCommentDto.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
-        CommentDto savedCommentDto = commentsService.addComment(1L, createOrUpdateCommentDto);
+        CreateOrUpdateCommentDto createCommentDto = CreateOrUpdateCommentDto.builder()
+                .text("Test Comment")
+                .build();
+
+        CommentDto savedCommentDto = commentsService.addComment(1L, createCommentDto);
 
         assertNotNull(savedCommentDto);
         assertEquals("Test Comment", savedCommentDto.getText());
+        assertEquals(ConstantGeneratorFotTest.USER_ID, savedCommentDto.getAuthor());
         verify(adRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).findByUserName(anyString());
+        verify(userRepository, times(1)).findByEmail(anyString());
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
 

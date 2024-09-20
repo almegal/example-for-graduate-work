@@ -22,6 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                               @Param("oldPassword") String oldPassword);
 
 
-    Optional<User> findByUserName(String userName);
+    Optional<User> findByEmail(String userName);
 
 }
