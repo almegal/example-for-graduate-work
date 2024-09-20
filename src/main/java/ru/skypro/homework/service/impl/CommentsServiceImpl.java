@@ -1,5 +1,6 @@
 package ru.skypro.homework.service.impl;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,8 +17,6 @@ import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.IllegalArgumentException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.service.CommentsService;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
