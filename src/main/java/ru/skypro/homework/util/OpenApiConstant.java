@@ -1,6 +1,9 @@
 package ru.skypro.homework.util;
 
+import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.Role;
+
+import java.util.List;
 
 public class OpenApiConstant {
     public static final String USER_NAME = "SomeUserName";
@@ -17,10 +20,11 @@ public class OpenApiConstant {
     public static final String IMAGE = "http://example.com/avatar.jpg";
     public static final String DATE = "00:00:00 01.01.1970";
     public static final String TEXT = "Text message";
+    public static final String AD_ID = "1";
     public static final String TITLE = "Title";
     public static final String DESCRIPTION = "Description";
-    public static final String PRICE = "Price";
-    public static final String AD_IMAGE = "File_path";;
+    public static final String PRICE = "5_000";
+    public static final String AD_IMAGE = "http://example.com/image.jpg";
     public static final String COUNT_ADS = "Count ads";
     public static final String LIST_ADS = "List ads";
 }

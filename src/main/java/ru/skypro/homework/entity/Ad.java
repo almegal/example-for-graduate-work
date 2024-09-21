@@ -21,7 +21,7 @@ public class Ad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank
     private String description;
@@ -34,6 +34,12 @@ public class Ad {
 
     @NotBlank
     private String imageUrl;
+
+    private String filePath;
+
+    private Long fileSize;
+
+    private String mediaType;
 
     // если будет LazyException то переделать на графы
     @ManyToOne(fetch = FetchType.LAZY)
