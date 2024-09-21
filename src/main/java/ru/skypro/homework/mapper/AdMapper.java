@@ -16,13 +16,13 @@ public interface AdMapper {
 
     @Mapping(source = "author.id", target = "author")
     @Mapping(source = "id", target = "pk")
-    @Mapping(source = "imageUrl", target = "image")
+    @Mapping(target = "image", expression = "java(\"/image\" + ad.getImageUrl())")
     AdDto toDto(Ad ad);
 
     List<AdDto> toDtos(List<Ad> ads);
 
     @Mapping(source = "id", target = "pk")
-    @Mapping(source = "imageUrl", target = "image")
+    @Mapping(target = "image", expression = "java(\"/image\" + ad.getImageUrl())")
     @Mapping(source = "author.email", target = "email")
     @Mapping(source = "author.firstName", target = "authorFirstName")
     @Mapping(source = "author.lastName", target = "authorLastName")
@@ -31,7 +31,6 @@ public interface AdMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "imageUrl", ignore = true)
-    @Mapping(target = "filePath", ignore = true)
     @Mapping(target = "fileSize", ignore = true)
     @Mapping(target = "mediaType", ignore = true)
     void updateAdFromUpdateAdDto(CreateOrUpdateAdDto dto, @MappingTarget Ad ad);

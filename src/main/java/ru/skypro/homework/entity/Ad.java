@@ -35,10 +35,9 @@ public class Ad {
     @NotBlank
     private String imageUrl;
 
-    private String filePath;
+    private long fileSize;
 
-    private Long fileSize;
-
+    @NotBlank
     private String mediaType;
 
     // если будет LazyException то переделать на графы

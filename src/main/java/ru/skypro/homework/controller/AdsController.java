@@ -4,34 +4,27 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.service.AdService;
 
 @Slf4j
-@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ads")
@@ -98,8 +91,7 @@ public class AdsController {
 
 
     @ApiOperation(value = "Удаление объявления",
-            notes = "Позволяет удалить объявление по его идентификатору"
-    )
+            notes = "Позволяет удалить объявление по его идентификатору")
     @ApiResponses(value = {
             @ApiResponse(
                     code = 204,
@@ -167,8 +159,7 @@ public class AdsController {
 
 
     @ApiOperation(value = "Обновление картинки в объявлении",
-            notes = "Позволяет обновить картинку в объявлении",
-            response = AdDto.class)
+            notes = "Позволяет обновить картинку в объявлении")
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -189,6 +180,41 @@ public class AdsController {
                                                 Authentication authentication) throws IOException {
         byte[] image = adsService.updateImageAd(id, file, authentication);
         return ResponseEntity.ok(image);
+    }
+
+
+    @ApiOperation(value = "Выгрузка картинки из сервера в объявление",
+            notes = "Позволяет выгрузить картинку из сервера в объявление")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "OK"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Not found")
+    })
+    @GetMapping(value = "/image/{id}")
+    public ResponseEntity<Void> downloadImage(@PathVariable Long id, HttpServletResponse response) {
+        Ad ad = adsService.findAdById(id);
+        if (ad.getImageUrl() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Path path = Path.of(ad.getImageUrl());
+        try (
+                InputStream is = Files.newInputStream(path);
+                OutputStream os = response.getOutputStream();
+                BufferedInputStream bis = new BufferedInputStream(is, 1024);
+                BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
+        ) {
+            response.setStatus(200);
+            response.setContentType(ad.getMediaType());
+            response.setContentLength((int) ad.getFileSize());
+            bis.transferTo(bos);
+        } catch (IOException e) {
+            log.error("Error uploading image file for ad with id = {}, path = {}",  ad.getId(), path, e);
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 

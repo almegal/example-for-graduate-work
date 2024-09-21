@@ -16,11 +16,7 @@ public class AdDto {
     @ApiModelProperty(value = "ID автора объявления", example = OpenApiConstant.ID)
     private Long author;
 
-    @Pattern(
-            regexp = "^(http|https)://.*$",
-            message = "Ссылка на картинку должна быть URL"
-    )
-    @ApiModelProperty(value = "Ссылка на картинку объявления", example = OpenApiConstant.AD_IMAGE)
+    @ApiModelProperty(value = "Путь к картинке объявления", example = OpenApiConstant.AD_IMAGE)
     private String image;
 
     // Согласно описанию апи мы сами задаем айди

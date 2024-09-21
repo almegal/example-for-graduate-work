@@ -9,9 +9,10 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.entity.Ad;
 
 public interface AdService {
-    public AdsDto getAds(Authentication authentication);
+    AdsDto getAds(Authentication authentication);
 
     AdDto addAd(CreateOrUpdateAdDto createAd, MultipartFile image, Authentication authentication) throws IOException;
 
@@ -24,4 +25,6 @@ public interface AdService {
     AdsDto getAdsByAuthenticatedUser(Authentication authentication);
 
     byte[] updateImageAd(Long id, @Valid MultipartFile file, Authentication authentication) throws IOException;
+
+    Ad findAdById(Long id);
 }

@@ -14,10 +14,7 @@ import static ru.skypro.homework.ConstantGeneratorFotTest.*;
 public class AdMapperTest {
 
     private final Ad AD_ENTITY = adGenerator();
-    private final AdDto AD_DTO = adDtoGenerator();
     private final List<Ad> ADS_ENTITY = listAdsGenerator();
-    private final List<AdDto> ADS_DTO = listAdsDtoGenerator();
-    private final ExtendedAdDto EXTENDED_AD_DTO = extendedAdDtoGenerator();
     private final CreateOrUpdateAdDto CREATE_OR_UPDATE_AD_DTO = createOrUpdateAdDtoGenerator();
     private final AdMapper mapper = AdMapper.INSTANCE;
 
@@ -27,7 +24,7 @@ public class AdMapperTest {
     public void shouldCorrectConvertFromEntityAdToDtoWithCorrectValue() {
         AdDto expected = AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
@@ -47,14 +44,14 @@ public class AdMapperTest {
     public void shouldCorrectConvertFromEntityAdsToDtoWithCorrectValue() {
         AdDto adDto1 = AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .build();
         AdDto adDto2 = AdDto.builder()
                 .author(AD_AUTHOR_ID_2)
-                .image(AD_IMAGE_2)
+                .image("/image" + AD_IMAGE_2)
                 .pk(AD_ID_2)
                 .price(AD_PRICE_2)
                 .title(AD_TITLE_2)
@@ -73,7 +70,7 @@ public class AdMapperTest {
         ExtendedAdDto expected = ExtendedAdDto.builder()
                 .pk(AD_ID_1)
                 .description(AD_DESCRIPTION_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .email(AD_AUTHOR_EMAIL_1)
@@ -111,7 +108,6 @@ public class AdMapperTest {
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getPrice(), actual.getPrice());
         assertEquals(expected.getImageUrl(), actual.getImageUrl());
-        assertEquals(expected.getFilePath(), actual.getFilePath());
         assertEquals(expected.getFileSize(), actual.getFileSize());
         assertEquals((expected.getMediaType()), actual.getMediaType());
         assertEquals(expected.getAuthor(), actual.getAuthor());

@@ -10,15 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.Repository.AdRepository;
 import ru.skypro.homework.Repository.UserRepository;
-import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.AdsDto;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
-import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.User;
+import ru.skypro.homework.exception.ForbiddenException;
 import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.exception.UnauthorizedException;
 import ru.skypro.homework.mapper.AdMapper;
@@ -39,18 +38,19 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public AdsDto getAds(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
-        List<AdDto> ads = adMapper.toDtos((List<Ad>) adRepository.findAll());
+        List<AdDto> ads = adMapper.toDtos(adRepository.findAll());
         return new AdsDto(ads.size(), ads);
     }
 
     @Override
+    @Transactional
     public AdDto addAd(CreateOrUpdateAdDto createAd,
                        MultipartFile image,
                        Authentication authentication) throws IOException {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
         Ad ad = new Ad();
@@ -65,40 +65,48 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public ExtendedAdDto getExtendedAd(Long id, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
-        Ad ad = adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+        Ad ad = findAdById(id);
         return adMapper.toExtendedDto(ad);
     }
 
     @Override
     public void removeAd(Long id, Authentication authentication) throws IOException {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
-        Ad ad = adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
-        Path path = Path.of(ad.getFilePath());
-        Files.deleteIfExists(path);
-        adRepository.deleteById(ad.getId());
+        Ad ad = findAdById(id);
+        Path path = Path.of(ad.getImageUrl());
+        if (isAdCreatorOrAdmin(ad, authentication)) {
+            Files.deleteIfExists(path);
+            adRepository.deleteById(ad.getId());
+        } else {
+            throw new ForbiddenException("Отсутствуют права на операции с объявлением");
+        }
     }
 
     @Override
     public AdDto updateAd(Long id, CreateOrUpdateAdDto dto, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
-        Ad ad = adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
-        ad.setTitle(dto.getTitle());
-        ad.setPrice(dto.getPrice());
-        ad.setDescription(dto.getDescription());
-        adRepository.save(ad);
-        return adMapper.toDto(ad);
+        Ad ad = findAdById(id);
+        if (isAdCreatorOrAdmin(ad, authentication)) {
+            ad.setTitle(dto.getTitle());
+            ad.setPrice(dto.getPrice());
+            ad.setDescription(dto.getDescription());
+            adRepository.save(ad);
+            return adMapper.toDto(ad);
+         } else {
+            throw new ForbiddenException("Отсутствуют права на операции с объявлением");
+        }
     }
 
     @Override
     public AdsDto getAdsByAuthenticatedUser(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
         List<AdDto> ads = adRepository.findAll().stream()
@@ -110,12 +118,20 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public byte[] updateImageAd(Long id, MultipartFile file, Authentication authentication) throws IOException {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
-        Ad ad = adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
-        uploadImageForAd(ad, file);
-        return Files.readAllBytes(Path.of(ad.getFilePath()));
+        Ad ad = findAdById(id);
+        if (isAdCreatorOrAdmin(ad, authentication)) {
+            uploadImageForAd(ad, file);
+            return Files.readAllBytes(Path.of(ad.getImageUrl()));
+        } else {
+            throw new ForbiddenException("Отсутствуют права на операции с объявлением");
+        }
+    }
+
+    public Ad findAdById(Long id) {
+        return adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
     }
 
     private void uploadImageForAd(Ad ad, MultipartFile imageFile) throws IOException {
@@ -140,7 +156,7 @@ public class AdServiceImpl implements AdService {
 
         log.info("File has been uploaded!");
 
-        ad.setFilePath(filePath.toString());
+        ad.setImageUrl(filePath.toString());
         ad.setFileSize(imageFile.getSize());
         ad.setMediaType(imageFile.getContentType());
 
@@ -150,6 +166,15 @@ public class AdServiceImpl implements AdService {
 
     private String getExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+    private boolean isAdCreatorOrAdmin(Ad ad, Authentication authentication) {
+        return userRepository.findUserByEmail(authentication.getName()).getRole() == Role.ADMIN
+                || authentication.getName().equals(ad.getAuthor().getEmail());
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated();
     }
 
 }

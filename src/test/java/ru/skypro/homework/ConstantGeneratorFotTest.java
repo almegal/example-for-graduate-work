@@ -33,9 +33,8 @@ public class ConstantGeneratorFotTest {
     public static final String AD_TITLE_1 = "Title 1";
     public static final String AD_DESCRIPTION_1 = "Description 1";
     public static final Integer AD_PRICE_1 = 5000;
-    public static final String AD_IMAGE_1 = "http://example.com/image1.jpg";
-    public static final String AD_FILE_PATH_1 = "File path 1";
-    public static final Long AD_FILE_SIZE_1 = 24_440L;
+    public static final String AD_IMAGE_1 = "/Users/alex/Desktop/photos_2/1.jpg";;
+    public static final int AD_FILE_SIZE_1 = 24_440;
     public static final String AD_MEDIA_TYPE_1 = "Media type 1";
     public static final User AD_AUTHOR_1 = userGenerator();
     public static final Long AD_AUTHOR_ID_1 = AD_AUTHOR_1.getId();
@@ -51,9 +50,8 @@ public class ConstantGeneratorFotTest {
     public static final String AD_TITLE_2 = "Title 2";
     public static final String AD_DESCRIPTION_2 = "Description 2";
     public static final Integer AD_PRICE_2 = 6000;
-    public static final String AD_IMAGE_2 = "http://example.com/image2.jpg";
-    public static final String AD_FILE_PATH_2 = "File path 2";
-    public static final Long AD_FILE_SIZE_2 = 30_440L;
+    public static final String AD_IMAGE_2 = "/Users/alex/Desktop/photos_2/2.jpg";;
+    public static final int AD_FILE_SIZE_2 = 30_440;
     public static final String AD_MEDIA_TYPE_2 = "Media type 2";
     public static final User AD_AUTHOR_2 = userGenerator();
     public static final Long AD_AUTHOR_ID_2 = AD_AUTHOR_2.getId();
@@ -109,7 +107,6 @@ public class ConstantGeneratorFotTest {
         ad.setDescription(AD_DESCRIPTION_1);
         ad.setPrice(AD_PRICE_1);
         ad.setImageUrl(AD_IMAGE_1);
-        ad.setFilePath(AD_FILE_PATH_1);
         ad.setFileSize(AD_FILE_SIZE_1);
         ad.setMediaType(AD_MEDIA_TYPE_1);
         ad.setAuthor(AD_AUTHOR_1);
@@ -119,7 +116,7 @@ public class ConstantGeneratorFotTest {
     public static AdDto adDtoGenerator() {
         return AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
@@ -133,7 +130,6 @@ public class ConstantGeneratorFotTest {
         ad1.setDescription(AD_DESCRIPTION_1);
         ad1.setPrice(AD_PRICE_1);
         ad1.setImageUrl(AD_IMAGE_1);
-        ad1.setFilePath(AD_FILE_PATH_1);
         ad1.setFileSize(AD_FILE_SIZE_1);
         ad1.setMediaType(AD_MEDIA_TYPE_1);
         ad1.setAuthor(AD_AUTHOR_1);
@@ -143,7 +139,6 @@ public class ConstantGeneratorFotTest {
         ad2.setDescription(AD_DESCRIPTION_2);
         ad2.setPrice(AD_PRICE_2);
         ad2.setImageUrl(AD_IMAGE_2);
-        ad2.setFilePath(AD_FILE_PATH_2);
         ad2.setFileSize(AD_FILE_SIZE_2);
         ad2.setMediaType(AD_MEDIA_TYPE_2);
         ad2.setAuthor(AD_AUTHOR_2);
@@ -153,14 +148,14 @@ public class ConstantGeneratorFotTest {
     public static List<AdDto> listAdsDtoGenerator() {
         AdDto adDto1 = AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .build();
         AdDto adDto2 = AdDto.builder()
                 .author(AD_AUTHOR_ID_2)
-                .image(AD_IMAGE_2)
+                .image("/image" + AD_IMAGE_2)
                 .pk(AD_ID_2)
                 .price(AD_PRICE_2)
                 .title(AD_TITLE_2)
@@ -172,7 +167,7 @@ public class ConstantGeneratorFotTest {
         return ExtendedAdDto.builder()
                 .pk(AD_ID_1)
                 .description(AD_DESCRIPTION_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .email(AD_AUTHOR_EMAIL_1)
@@ -193,7 +188,7 @@ public class ConstantGeneratorFotTest {
     public static AdDto newAdDtoGenerator() {
         return AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .title(AD_NEW_TITLE_1)
                 .price(AD_NEW_PRICE_1)
