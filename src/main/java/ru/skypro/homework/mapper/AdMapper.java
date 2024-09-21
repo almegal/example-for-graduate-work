@@ -16,13 +16,13 @@ public interface AdMapper {
 
     @Mapping(source = "author.id", target = "author")
     @Mapping(source = "id", target = "pk")
-    @Mapping(target = "image", expression = "java(\"/image\" + ad.getImageUrl())")
+    @Mapping(target = "image", expression = "java(\"/image/\" + ad.getImageUrl())")
     AdDto toDto(Ad ad);
 
     List<AdDto> toDtos(List<Ad> ads);
 
     @Mapping(source = "id", target = "pk")
-    @Mapping(target = "image", expression = "java(\"/image\" + ad.getImageUrl())")
+    @Mapping(target = "image", expression = "java(\"/image/\" + ad.getImageUrl())")
     @Mapping(source = "author.email", target = "email")
     @Mapping(source = "author.firstName", target = "authorFirstName")
     @Mapping(source = "author.lastName", target = "authorLastName")
