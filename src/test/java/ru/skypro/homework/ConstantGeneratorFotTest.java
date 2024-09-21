@@ -116,7 +116,7 @@ public class ConstantGeneratorFotTest {
     public static AdDto adDtoGenerator() {
         return AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image("/image" + AD_IMAGE_1)
+                .image("/image/" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
@@ -148,14 +148,14 @@ public class ConstantGeneratorFotTest {
     public static List<AdDto> listAdsDtoGenerator() {
         AdDto adDto1 = AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image("/image" + AD_IMAGE_1)
+                .image("/image/" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .build();
         AdDto adDto2 = AdDto.builder()
                 .author(AD_AUTHOR_ID_2)
-                .image("/image" + AD_IMAGE_2)
+                .image("/image/" + AD_IMAGE_2)
                 .pk(AD_ID_2)
                 .price(AD_PRICE_2)
                 .title(AD_TITLE_2)
@@ -167,7 +167,7 @@ public class ConstantGeneratorFotTest {
         return ExtendedAdDto.builder()
                 .pk(AD_ID_1)
                 .description(AD_DESCRIPTION_1)
-                .image("/image" + AD_IMAGE_1)
+                .image("/image/" + AD_IMAGE_1)
                 .price(AD_PRICE_1)
                 .title(AD_TITLE_1)
                 .email(AD_AUTHOR_EMAIL_1)
@@ -188,7 +188,7 @@ public class ConstantGeneratorFotTest {
     public static AdDto newAdDtoGenerator() {
         return AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image("/image" + AD_IMAGE_1)
+                .image("/image/" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .title(AD_NEW_TITLE_1)
                 .price(AD_NEW_PRICE_1)
