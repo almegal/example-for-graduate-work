@@ -35,6 +35,11 @@ public class Ad {
     @NotBlank
     private String imageUrl;
 
+    private long fileSize;
+
+    @NotBlank
+    private String mediaType;
+
     // если будет LazyException то переделать на графы
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
