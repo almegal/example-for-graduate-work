@@ -19,13 +19,13 @@ public class AdDto {
     @ApiModelProperty(value = "ID автора объявления", example = OpenApiConstant.ID)
     private Long author;
 
-    @ApiModelProperty(value = "Ссылка на картинку объявления", example = OpenApiConstant.AD_IMAGE)
+    @ApiModelProperty(value = "Путь к картинке объявления", example = OpenApiConstant.AD_IMAGE)
     private String image;
 
     // Согласно описанию апи мы сами задаем айди
     // не генерируем его?
     @NotNull(message = "ID объявления не может быть null")
-    @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.ID)
+    @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.AD_ID)
     private Long pk;
 
     @Min(value = 0, message = "Цена не может быть меньше 0")

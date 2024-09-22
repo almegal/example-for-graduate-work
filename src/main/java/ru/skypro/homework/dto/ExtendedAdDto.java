@@ -8,23 +8,25 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(value = "ExtendedAd", description = "Модель полного объявления")
 public class ExtendedAdDto {
 
     @NotNull(message = "ID объявления не может быть null")
-    @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.ID)
-    private Integer pk;
+    @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.AD_ID)
+    private Long pk;
 
     @NotBlank(message = "Описание не может быть пустым или состоять только из пробелов")
     @Size(min = 8, max = 64, message = "Описание должно быть от 8 до 64 символов")
     @ApiModelProperty(value = "Описание объявления", example = OpenApiConstant.DESCRIPTION)
     private String description;
 
-    @ApiModelProperty(value = "Ссылка на картинку объявления", example = OpenApiConstant.AD_IMAGE)
+    @ApiModelProperty(value = "Путь к картинке объявления", example = OpenApiConstant.AD_IMAGE)
     private String image;
 
     @Min(value = 0, message = "Цена не может быть меньше 0")
