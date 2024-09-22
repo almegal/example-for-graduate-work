@@ -22,15 +22,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.skypro.homework.ConstantGeneratorFotTest;
-import ru.skypro.homework.repository.AdRepository;
-import ru.skypro.homework.repository.CommentRepository;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.mapper.CommentMapper;
+import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.impl.CommentsServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,10 +38,10 @@ class CommentsServiceImplTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private AdRepository adRepository;
+    private AdService adService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private CommentMapper commentMapper;
@@ -78,11 +76,10 @@ class CommentsServiceImplTest {
         when(commentRepository.findByAdId(1L)).thenReturn(List.of(comment));
         when(commentMapper.toDtos(any())).thenReturn(List.of(commentDto));
 
-        List<CommentsDto> commentsDtos = commentsService.getCommentsByAdId(1L);
+        CommentsDto commentsDtos = commentsService.getCommentsByAdId(1L);
 
         assertNotNull(commentsDtos);
-        assertEquals(1, commentsDtos.size());
-        assertEquals(1, commentsDtos.get(0).getCount());
+        assertEquals(1, commentsDtos.getCount());
         verify(commentRepository, times(1)).findByAdId(1L);
     }
 
@@ -101,8 +98,8 @@ class CommentsServiceImplTest {
                         userDetails.getAuthorities()));
         SecurityContextHolder.setContext(securityContext);
 
-        when(adRepository.findById(1L)).thenReturn(Optional.of(ad));
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(adService.findAdById(1L)).thenReturn(ad);
+        when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
@@ -115,8 +112,8 @@ class CommentsServiceImplTest {
         assertNotNull(savedCommentDto);
         assertEquals("Test Comment", savedCommentDto.getText());
         assertEquals(ConstantGeneratorFotTest.USER_ID, savedCommentDto.getAuthor());
-        verify(adRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).findByEmail(anyString());
+        verify(adService, times(1)).findAdById(1L);
+        verify(userService, times(1)).getUserByEmailFromDb(anyString());
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
 

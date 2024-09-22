@@ -1,5 +1,6 @@
 package ru.skypro.homework.controller;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -12,11 +13,13 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.skypro.homework.ConstantGeneratorFotTest;
@@ -27,6 +30,9 @@ import ru.skypro.homework.entity.User;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.service.impl.UserSecurityDetails;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +54,15 @@ public class CommentsControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private AdService adService;
+
+    @Mock
+    private UserSecurityDetails userSecurityDetails;
+
     private Ad ad;
     private User user;
     private Comment comment;
@@ -66,13 +81,21 @@ public class CommentsControllerIntegrationTest {
         // Наконец, сохраняем комментарий
         comment = ConstantGeneratorFotTest.commentGenerator(ad, user);
         commentRepository.save(comment);
+
+        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        userSecurityDetails,
+                        null,
+                        userSecurityDetails.getAuthorities())
+        );
     }
 
     @Test
     @Order(1)
-    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testAddComment() throws Exception {
+
         CreateOrUpdateCommentDto createCommentDto = CreateOrUpdateCommentDto.builder()
                 .text("Test Comment")
                 .build();
@@ -80,13 +103,12 @@ public class CommentsControllerIntegrationTest {
         mockMvc.perform(post("/ads/{adId}/comments", ad.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createCommentDto)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("Test Comment"));
     }
 
     @Test
     @Order(2)
-    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testUpdateComment() throws Exception {
         CreateOrUpdateCommentDto updateCommentDto = CreateOrUpdateCommentDto.builder()
@@ -102,7 +124,6 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(3)
-    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testGetComments() throws Exception {
         mockMvc.perform(get("/ads/{adId}/comments", ad.getId())
@@ -114,11 +135,10 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(4)
-    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testDeleteComment() throws Exception {
         mockMvc.perform(delete("/ads/{adId}/comments/{commentId}", ad.getId(), comment.getId())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 }

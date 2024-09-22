@@ -197,8 +197,8 @@ public class AdsController {
                     message = "Not found")
     })
     @GetMapping(value = "/image/{id}")
-    public ResponseEntity<Void> downloadImage(@PathVariable Long id,
-                                              HttpServletResponse response) {
+    public ResponseEntity<byte[]> downloadImage(@PathVariable Long id,
+                                                HttpServletResponse response) {
         Ad ad = adsService.findAdById(id);
         if (ad.getImageUrl() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -206,21 +206,20 @@ public class AdsController {
 
         Path path = Path.of(ad.getImageUrl());
         try {
-            // Установка Content-Type
+
             String contentType = Files.probeContentType(path);
             if (contentType == null) {
-                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE; // Значение по умолчанию
+                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
             response.setContentType(contentType);
             response.setHeader("Content-Disposition",
                     "attachment; filename=\"" + path.getFileName() + "\"");
 
-            // Чтение и передача изображения
             try (InputStream is = Files.newInputStream(path);
                  OutputStream os = response.getOutputStream()) {
 
                 is.transferTo(os);
-                os.flush(); // Обязательно
+                os.flush();
             }
             return ResponseEntity.ok().build();
         } catch (IOException e) {

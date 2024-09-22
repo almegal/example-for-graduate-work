@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -49,12 +47,9 @@ public class UserController {
             )
     })
     @PostMapping("/users/set_password")
-    public ResponseEntity<Void> updatePassword(
+    public void updatePassword(
             @Valid @RequestBody NewPasswordDto newPassword) {
-        if (userService.updatePassword(newPassword)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        userService.updatePassword(newPassword);
     }
 
     @ApiOperation(value = "Получение информации об авторизованном пользователе",
@@ -71,12 +66,8 @@ public class UserController {
             )
     })
     @GetMapping("/users/me")
-    public ResponseEntity<UserDto> getAuthenticatedUser() {
-        UserDto user = userService.getAuthenticatedUser();
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public UserDto getAuthenticatedUser() {
+        return userService.getAuthenticatedUser();
     }
 
     @ApiOperation(value = "Обновление информации об авторизованном пользователе",
@@ -93,13 +84,9 @@ public class UserController {
             )
     })
     @PatchMapping("/users/me")
-    public ResponseEntity<UserDto> updateAuthenticatedUserInfo(
+    public UserDto updateAuthenticatedUserInfo(
             @Valid @RequestBody UpdateUserDto updateUser) {
-        UserDto user = userService.updateAuthenticatedUserInfo(updateUser);
-        if (updateUser != null) {
-            return ResponseEntity.ok(user);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return userService.updateAuthenticatedUserInfo(updateUser);
     }
 
     @ApiOperation(value = "Обновление аватара авторизованного пользователя",
@@ -116,11 +103,8 @@ public class UserController {
             )
     })
     @PatchMapping("/users/me/image")
-    public ResponseEntity<Void> updateAuthenticatedUserImage(
+    public void updateAuthenticatedUserImage(
             @RequestParam("image") MultipartFile image) {
-        if (userService.updateAuthenticatedUserImage(image)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        userService.updateAuthenticatedUserImage(image);
     }
 }

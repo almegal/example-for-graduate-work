@@ -4,12 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,12 +41,12 @@ public class CommentsController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping("/ads/{id}/comments")
-    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Long adId) {
-        List<CommentsDto> commentsList = commentsService.getCommentsByAdId(adId);
-        if (commentsList.isEmpty()) {
+    public CommentsDto getComments(@PathVariable("id") Long adId) {
+        CommentsDto commentsDto = commentsService.getCommentsByAdId(adId);
+        if (commentsDto.getCount() == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарии не найдены");
         }
-        return ResponseEntity.ok(commentsList.get(0));
+        return commentsDto;
     }
 
     @ApiOperation(value = "Добавление комментария к объявлению",
@@ -66,11 +64,10 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PostMapping("/ads/{id}/comments")
-    public ResponseEntity<CommentDto> addComment(
+    public CommentDto addComment(
             @PathVariable("id") Long adId,
             @Valid @RequestBody CreateOrUpdateCommentDto createCommentDto) {
-        CommentDto commentDto = commentsService.addComment(adId, createCommentDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
+        return commentsService.addComment(adId, createCommentDto);
     }
 
     @ApiOperation(value = "Удаление комментария",
@@ -82,14 +79,13 @@ public class CommentsController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @DeleteMapping("/ads/{adId}/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable("adId") Long adId,
-                                              @PathVariable("commentId") Long commentId) {
+    public void deleteComment(@PathVariable("adId") Long adId,
+                              @PathVariable("commentId") Long commentId) {
         try {
             commentsService.deleteComment(adId, commentId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
         }
-        return ResponseEntity.noContent().build();
     }
 
     @ApiOperation(value = "Обновление комментария",
@@ -110,16 +106,11 @@ public class CommentsController {
                     message = "Not Found")
     })
     @PatchMapping("/ads/{adId}/comments/{commentId}")
-    public ResponseEntity<CommentDto> updateComment(
+    public CommentDto updateComment(
             @PathVariable("adId") Long adId,
             @PathVariable("commentId") Long commentId,
             @Valid @RequestBody CreateOrUpdateCommentDto updateCommentDto) {
-        CommentDto commentDto;
-        try {
-            commentDto = commentsService.updateComment(adId, commentId, updateCommentDto);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарий не найден");
-        }
-        return ResponseEntity.ok(commentDto);
+
+        return commentsService.updateComment(adId, commentId, updateCommentDto);
     }
 }
