@@ -1,9 +1,15 @@
 package ru.skypro.homework.service.impl;
 
-import java.io.*;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +18,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.Repository.AdRepository;
-import ru.skypro.homework.Repository.UserRepository;
-import ru.skypro.homework.dto.*;
+import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.ForbiddenException;
@@ -22,7 +32,6 @@ import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.exception.UnauthorizedException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.service.AdService;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +51,10 @@ public class AdServiceImpl implements AdService {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
         List<AdDto> ads = adMapper.toDtos(adRepository.findAll());
-        return new AdsDto(ads.size(), ads);
+        return AdsDto.builder()
+                .count(ads.size())
+                .results(ads)
+                .build();
     }
 
     @Override
@@ -55,7 +67,8 @@ public class AdServiceImpl implements AdService {
         }
         Ad ad = new Ad();
         adMapper.updateAdFromUpdateAdDto(createAd, ad);
-        User user = userRepository.findUserByEmail(authentication.getName());
+        User user = userRepository
+                .findByEmail(authentication.getName()).orElseThrow();
         ad.setAuthor(user);
         adRepository.save(ad);
 
@@ -99,7 +112,7 @@ public class AdServiceImpl implements AdService {
             ad.setDescription(dto.getDescription());
             adRepository.save(ad);
             return adMapper.toDto(ad);
-         } else {
+        } else {
             throw new ForbiddenException("Отсутствуют права на операции с объявлением");
         }
     }
@@ -113,11 +126,16 @@ public class AdServiceImpl implements AdService {
                 .filter(ad -> (ad.getAuthor().getEmail()).equals(authentication.getName()))
                 .map(adMapper::toDto)
                 .collect(Collectors.toList());
-        return new AdsDto(ads.size(), ads);
+        return AdsDto.builder()
+                .count(ads.size())
+                .results(ads)
+                .build();
     }
 
     @Override
-    public byte[] updateImageAd(Long id, MultipartFile file, Authentication authentication) throws IOException {
+    public byte[] updateImageAd(Long id,
+                                MultipartFile file,
+                                Authentication authentication) throws IOException {
         if (!isAuthenticated(authentication)) {
             throw new UnauthorizedException("Пользователь не авторизован");
         }
@@ -131,11 +149,14 @@ public class AdServiceImpl implements AdService {
     }
 
     public Ad findAdById(Long id) {
-        return adRepository.findById(id).orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+        return adRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
     }
 
     private void uploadImageForAd(Ad ad, MultipartFile imageFile) throws IOException {
-        Path filePath = Path.of(photoDir, ad.getId() + "." + getExtension(imageFile.getOriginalFilename()));
+        Path filePath = Path.of(photoDir, ad.getId() + "." + getExtension(
+                Objects.requireNonNull(imageFile.getOriginalFilename())));
         System.out.println(filePath);
 
         Files.createDirectories(filePath.getParent());
@@ -151,8 +172,9 @@ public class AdServiceImpl implements AdService {
             bis.transferTo(bos);
 
         } catch (IOException e) {
-        log.error("Error uploading image file for ad with id = {}, path = {}",  ad.getId(), filePath, e);
-    }
+            log.error("Error uploading image file for ad with id = {}, path = {}",
+                    ad.getId(), filePath, e);
+        }
 
         log.info("File has been uploaded!");
 
@@ -169,8 +191,11 @@ public class AdServiceImpl implements AdService {
     }
 
     private boolean isAdCreatorOrAdmin(Ad ad, Authentication authentication) {
-        return userRepository.findUserByEmail(authentication.getName()).getRole() == Role.ADMIN
-                || authentication.getName().equals(ad.getAuthor().getEmail());
+        return userRepository
+                .findByEmail(authentication.getName())
+                .orElseThrow()
+                .getRole() == Role.ADMIN ||
+                authentication.getName().equals(ad.getAuthor().getEmail());
     }
 
     private boolean isAuthenticated(Authentication authentication) {

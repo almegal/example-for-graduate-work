@@ -2,14 +2,15 @@ package ru.skypro.homework;
 
 import java.util.List;
 import java.util.Random;
+import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.entity.Ad;
+import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.entity.User;
 
 public class ConstantGeneratorFotTest {
@@ -33,7 +34,8 @@ public class ConstantGeneratorFotTest {
     public static final String AD_TITLE_1 = "Title 1";
     public static final String AD_DESCRIPTION_1 = "Description 1";
     public static final Integer AD_PRICE_1 = 5000;
-    public static final String AD_IMAGE_1 = "/Users/alex/Desktop/photos_2/1.jpg";;
+    public static final String AD_IMAGE_1 = "/Users/alex/Desktop/photos_2/1.jpg";
+    ;
     public static final int AD_FILE_SIZE_1 = 24_440;
     public static final String AD_MEDIA_TYPE_1 = "Media type 1";
     public static final User AD_AUTHOR_1 = userGenerator();
@@ -50,7 +52,8 @@ public class ConstantGeneratorFotTest {
     public static final String AD_TITLE_2 = "Title 2";
     public static final String AD_DESCRIPTION_2 = "Description 2";
     public static final Integer AD_PRICE_2 = 6000;
-    public static final String AD_IMAGE_2 = "/Users/alex/Desktop/photos_2/2.jpg";;
+    public static final String AD_IMAGE_2 = "/Users/alex/Desktop/photos_2/2.jpg";
+    ;
     public static final int AD_FILE_SIZE_2 = 30_440;
     public static final String AD_MEDIA_TYPE_2 = "Media type 2";
     public static final User AD_AUTHOR_2 = userGenerator();
@@ -111,6 +114,16 @@ public class ConstantGeneratorFotTest {
         ad.setMediaType(AD_MEDIA_TYPE_1);
         ad.setAuthor(AD_AUTHOR_1);
         return ad;
+    }
+
+    public static Comment commentGenerator(Ad ad, User user) {
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setText("Test Comment");
+        comment.setCreatedAt(System.currentTimeMillis());
+        comment.setAd(ad);
+        comment.setAuthor(user);
+        return comment;
     }
 
     public static AdDto adDtoGenerator() {

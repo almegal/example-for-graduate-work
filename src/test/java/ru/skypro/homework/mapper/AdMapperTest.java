@@ -1,21 +1,42 @@
 package ru.skypro.homework.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_EMAIL_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_FIRST_NAME_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_ID_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_ID_2;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_LAST_NAME_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_PHONE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_DESCRIPTION_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_ID_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_ID_2;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_IMAGE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_IMAGE_2;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_DESCRIPTION_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_PRICE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_TITLE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_PRICE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_PRICE_2;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_TITLE_1;
+import static ru.skypro.homework.ConstantGeneratorFotTest.AD_TITLE_2;
+import static ru.skypro.homework.ConstantGeneratorFotTest.adGenerator;
+import static ru.skypro.homework.ConstantGeneratorFotTest.createOrUpdateAdDtoGenerator;
+import static ru.skypro.homework.ConstantGeneratorFotTest.listAdsGenerator;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
-import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static ru.skypro.homework.ConstantGeneratorFotTest.*;
 
 public class AdMapperTest {
 
-    private final Ad AD_ENTITY = adGenerator();
-    private final List<Ad> ADS_ENTITY = listAdsGenerator();
-    private final CreateOrUpdateAdDto CREATE_OR_UPDATE_AD_DTO = createOrUpdateAdDtoGenerator();
+    static final Ad AD_ENTITY = adGenerator();
+    static final List<Ad> ADS_ENTITY = listAdsGenerator();
+    static final CreateOrUpdateAdDto CREATE_OR_UPDATE_AD_DTO = createOrUpdateAdDtoGenerator();
     private final AdMapper mapper = AdMapper.INSTANCE;
 
 

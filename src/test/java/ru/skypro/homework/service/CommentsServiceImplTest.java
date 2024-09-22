@@ -1,20 +1,30 @@
 package ru.skypro.homework.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.skypro.homework.ConstantGeneratorFotTest;
-import ru.skypro.homework.Repository.AdRepository;
-import ru.skypro.homework.Repository.CommentRepository;
-import ru.skypro.homework.Repository.UserRepository;
+import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.CommentRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
@@ -22,13 +32,6 @@ import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.service.impl.CommentsServiceImpl;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CommentsServiceImplTest {
@@ -87,9 +90,15 @@ class CommentsServiceImplTest {
     @WithMockUser(username = "testuser@example.com")
     void addComment() {
         // Set up the security context
-        UserDetails userDetails = User.withUsername("testuser@example.com").password("password").roles("USER").build();
+        UserDetails userDetails = User
+                .withUsername("testuser@example.com")
+                .password("password")
+                .roles("USER")
+                .build();
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+        securityContext.setAuthentication(
+                new UsernamePasswordAuthenticationToken(userDetails, null,
+                        userDetails.getAuthorities()));
         SecurityContextHolder.setContext(securityContext);
 
         when(adRepository.findById(1L)).thenReturn(Optional.of(ad));
@@ -127,7 +136,9 @@ class CommentsServiceImplTest {
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
-        CommentDto updatedCommentDto = commentsService.updateComment(1L, 1L, createOrUpdateCommentDto);
+        CommentDto updatedCommentDto = commentsService.updateComment(1L,
+                1L,
+                createOrUpdateCommentDto);
 
         assertNotNull(updatedCommentDto);
         assertEquals("Test Comment", updatedCommentDto.getText());

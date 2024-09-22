@@ -4,7 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +19,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
@@ -84,7 +96,8 @@ public class AdsController {
                     message = "Not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getExtendedAd(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<ExtendedAdDto> getExtendedAd(@PathVariable Long id,
+                                                       Authentication authentication) {
         ExtendedAdDto extendedAd = adsService.getExtendedAd(id, authentication);
         return ResponseEntity.ok(extendedAd);
     }
@@ -107,7 +120,8 @@ public class AdsController {
                     message = "Not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable Long id, Authentication authentication) throws IOException {
+    public ResponseEntity<Void> removeAd(@PathVariable Long id,
+                                         Authentication authentication) throws IOException {
         adsService.removeAd(id, authentication);
         return ResponseEntity.noContent().build();
     }
@@ -212,7 +226,8 @@ public class AdsController {
             response.setContentLength((int) ad.getFileSize());
             bis.transferTo(bos);
         } catch (IOException e) {
-            log.error("Error uploading image file for ad with id = {}, path = {}",  ad.getId(), path, e);
+            log.error("Error uploading image file for ad with id = {}, path = {}",
+                    ad.getId(), path, e);
         }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
