@@ -206,5 +206,14 @@ public class ConstantGeneratorFotTest {
                 .build();
     }
 
+    public static Comment commentGenerator(Ad ad, User user) {
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setText("Test Comment");
+        comment.setCreatedAt(System.currentTimeMillis());
+        comment.setAd(ad);
+        comment.setAuthor(user);
+        return comment;
+    }
 
 }
