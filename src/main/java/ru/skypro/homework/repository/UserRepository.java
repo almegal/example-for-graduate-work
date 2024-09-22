@@ -1,4 +1,4 @@
-package ru.skypro.homework.Repository;
+package ru.skypro.homework.repository;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

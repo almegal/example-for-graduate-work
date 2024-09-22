@@ -70,7 +70,7 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(1)
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testAddComment() throws Exception {
         CreateOrUpdateCommentDto createCommentDto = CreateOrUpdateCommentDto.builder()
@@ -86,7 +86,7 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(2)
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testUpdateComment() throws Exception {
         CreateOrUpdateCommentDto updateCommentDto = CreateOrUpdateCommentDto.builder()
@@ -102,7 +102,7 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(3)
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testGetComments() throws Exception {
         mockMvc.perform(get("/ads/{adId}/comments", ad.getId())
@@ -114,7 +114,7 @@ public class CommentsControllerIntegrationTest {
 
     @Test
     @Order(4)
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "somecool@mail.com")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testDeleteComment() throws Exception {
         mockMvc.perform(delete("/ads/{adId}/comments/{commentId}", ad.getId(), comment.getId())

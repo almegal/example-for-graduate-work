@@ -28,4 +28,8 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "ad_id", nullable = false)
     private Ad ad;
+
+    public Comment() {
+        this.createdAt = System.currentTimeMillis();
+    }
 }

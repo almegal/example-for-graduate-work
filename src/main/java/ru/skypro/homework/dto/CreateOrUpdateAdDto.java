@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class CreateOrUpdateAdDto {
             example = OpenApiConstant.TITLE)
     private String title;
 
-    @NotBlank(message = "Цена не может быть пустой или состоять только из пробелов")
+    @NotNull(message = "Цена не может быть пустой или состоять только из пробелов")
     @Min(value = 0, message = "Цена не может быть меньше 0")
     @Max(value = 10_000_000, message = "Цена не может превышать 10 000 00")
     @ApiModelProperty(value = "Создание или обновление цены объявления",

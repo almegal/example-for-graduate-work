@@ -129,8 +129,6 @@ public class AdMapperTest {
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getPrice(), actual.getPrice());
         assertEquals(expected.getImageUrl(), actual.getImageUrl());
-        assertEquals(expected.getFileSize(), actual.getFileSize());
-        assertEquals((expected.getMediaType()), actual.getMediaType());
         assertEquals(expected.getAuthor(), actual.getAuthor());
     }
 

@@ -3,8 +3,8 @@ package ru.skypro.homework.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
@@ -28,6 +28,7 @@ public class CommentsServiceImpl implements CommentsService {
     private final CommentMapper commentMapper;
 
     @Override
+    @Transactional
     public List<CommentsDto> getCommentsByAdId(Long adId) {
         List<Comment> commentList = commentRepository.findByAdId(adId);
         List<CommentDto> commentDto = commentMapper.toDtos(commentList);
@@ -40,20 +41,16 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public CommentDto addComment(Long adId, CreateOrUpdateCommentDto createCommentDto) {
         User user = userRepository
-                .findByEmail(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getName())
+                .findByEmail(getAuthenticatedUserName())
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new IllegalArgumentException("Объявление не найдено"));
 
         Comment comment = new Comment();
-        comment.setText(createCommentDto.getText());
+        commentMapper.toEntityFromCreateUpdatDto(createCommentDto, comment);
         comment.setAd(ad);
         comment.setAuthor(user);
-        comment.setCreatedAt(System.currentTimeMillis());
 
         comment = commentRepository.save(comment);
 
@@ -84,12 +81,10 @@ public class CommentsServiceImpl implements CommentsService {
         return commentMapper.toDto(updatedComment);
     }
 
-    private String getCurrentUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
+    private String getAuthenticatedUserName() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
     }
 }

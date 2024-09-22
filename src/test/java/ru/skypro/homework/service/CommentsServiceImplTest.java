@@ -124,7 +124,7 @@ class CommentsServiceImplTest {
     void deleteComment() {
         when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
 
-        commentsService.deleteComment(1L, 1L);
+        commentsService.deleteComment(ad.getId(), 1L);
 
         verify(commentRepository, times(1)).findById(1L);
         verify(commentRepository, times(1)).delete(any(Comment.class));
@@ -136,7 +136,7 @@ class CommentsServiceImplTest {
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
 
-        CommentDto updatedCommentDto = commentsService.updateComment(1L,
+        CommentDto updatedCommentDto = commentsService.updateComment(ad.getId(),
                 1L,
                 createOrUpdateCommentDto);
 

@@ -5,6 +5,7 @@ import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.entity.User;
 
 public interface UserService {
 
@@ -19,4 +20,6 @@ public interface UserService {
     boolean saveUser(RegisterDto dto);
 
     boolean emailExists(String email);
+
+    User getUserByEmailFromDb(String email);
 }
