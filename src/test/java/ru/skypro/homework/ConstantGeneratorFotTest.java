@@ -35,7 +35,6 @@ public class ConstantGeneratorFotTest {
     public static final String AD_DESCRIPTION_1 = "Description 1";
     public static final Integer AD_PRICE_1 = 5000;
     public static final String AD_IMAGE_1 = "/Users/alex/Desktop/photos_2/1.jpg";
-    ;
     public static final int AD_FILE_SIZE_1 = 24_440;
     public static final String AD_MEDIA_TYPE_1 = "Media type 1";
     public static final User AD_AUTHOR_1 = userGenerator();
@@ -53,7 +52,6 @@ public class ConstantGeneratorFotTest {
     public static final String AD_DESCRIPTION_2 = "Description 2";
     public static final Integer AD_PRICE_2 = 6000;
     public static final String AD_IMAGE_2 = "/Users/alex/Desktop/photos_2/2.jpg";
-    ;
     public static final int AD_FILE_SIZE_2 = 30_440;
     public static final String AD_MEDIA_TYPE_2 = "Media type 2";
     public static final User AD_AUTHOR_2 = userGenerator();
