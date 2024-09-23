@@ -1,5 +1,6 @@
 package ru.skypro.homework.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,4 +29,8 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "ad_id", nullable = false)
     private Ad ad;
+
+    public Comment() {
+        this.createdAt = System.currentTimeMillis();
+    }
 }

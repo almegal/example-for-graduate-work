@@ -26,11 +26,11 @@ import ru.skypro.homework.entity.User;
 // toDo Переписать через параметарайзет тест (argsProvider? или просто сурс)
 // toDo задача команде на тесты маппинга по анологии
 public class UserMapperTest {
-    private final User USER_ENTITY = userGenerator();
-    private final UserDto USER_DTO = userDtoGenerator();
-    private final UpdateUserDto UPDATE_USER_DTO = updateUserDtoGenerator();
-    private final RegisterDto REGISTER_DTO = registerDtoGenerator();
-    private final UserMapper mapper = UserMapper.INSTANCE;
+    static final User USER_ENTITY = userGenerator();
+    static final UserDto USER_DTO = userDtoGenerator();
+    static final UpdateUserDto UPDATE_USER_DTO = updateUserDtoGenerator();
+    static final RegisterDto REGISTER_DTO = registerDtoGenerator();
+    final UserMapper mapper = UserMapper.INSTANCE;
 
 
     @Test

@@ -2,8 +2,6 @@ package ru.skypro.homework.service;
 
 import java.io.IOException;
 import javax.validation.Valid;
-
-import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
@@ -12,19 +10,22 @@ import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
 
 public interface AdService {
-    AdsDto getAds(Authentication authentication);
+    public AdsDto getAds();
 
-    AdDto addAd(CreateOrUpdateAdDto createAd, MultipartFile image, Authentication authentication) throws IOException;
+    AdDto addAd(CreateOrUpdateAdDto createAd, MultipartFile image);
 
-    ExtendedAdDto getExtendedAd(Long id, Authentication authentication);
+    ExtendedAdDto getExtendedAd(Long id);
 
-    void removeAd(Long id, Authentication authentication) throws IOException;
+    void removeAd(Long id) throws IOException;
 
-    AdDto updateAd(Long id, @Valid CreateOrUpdateAdDto dto, Authentication authentication);
+    AdDto updateAd(Long id, @Valid CreateOrUpdateAdDto ad);
 
-    AdsDto getAdsByAuthenticatedUser(Authentication authentication);
+    AdsDto getAdsByAuthenticatedUser();
 
-    byte[] updateImageAd(Long id, @Valid MultipartFile file, Authentication authentication) throws IOException;
+    AdDto updateImageAd(Long id,
+                        @Valid MultipartFile file);
 
     Ad findAdById(Long id);
+
+//    public boolean isAdCreatorOrAdmin(Long id);
 }

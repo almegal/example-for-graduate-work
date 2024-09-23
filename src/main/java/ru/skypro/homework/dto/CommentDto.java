@@ -34,7 +34,7 @@ public class CommentDto {
             example = OpenApiConstant.NAME)
     private String authorFirstName;
 
-    @NotBlank(message = "Дата создания комментария не может быть null")
+    @NotNull(message = "Дата создания комментария не может быть null")
     @ApiModelProperty(
             value = "Дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970",
             example = OpenApiConstant.DATE)
