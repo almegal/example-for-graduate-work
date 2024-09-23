@@ -5,7 +5,7 @@ services:
     environment:
       - DB_USER=postgres
       - DB_PASS=postgres
-      - DATA_SOURCE=jdbc:postgresql://prod-db-server:5432/db
+      - DATA_SOURCE=jdbc:postgresql://prod-db-server:5435/db
       - SPRING_PROFILES_ACTIVE=dev
     ports:
       - "8080:8080"
@@ -18,7 +18,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=db
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - db1-data:/var/lib/postgresql/data
 
