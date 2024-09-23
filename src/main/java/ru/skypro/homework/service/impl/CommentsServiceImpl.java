@@ -59,28 +59,22 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
-    @PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#commentId)")
+    @PreAuthorize("@commentsServiceImpl.isAdCreatorOrAdmin(#commentId)")
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteComment(Long adId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Комментарий не найден"));
-        if (!comment.getAd().getId().equals(adId)) {
-            throw new IllegalArgumentException("Комментарий не принадлежит данному объявлению");
-        }
         commentRepository.delete(comment);
     }
 
     @Override
-    @PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#commentId)")
+    @PreAuthorize("@commentsServiceImpl.isAdCreatorOrAdmin(#commentId)")
     @Transactional
     public CommentDto updateComment(Long adId,
                                     Long commentId,
                                     CreateOrUpdateCommentDto updateCommentDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Комментарий не найден"));
-        if (!comment.getAd().getId().equals(adId)) {
-            throw new IllegalArgumentException("Комментарий не принадлежит данному объявлению");
-        }
         commentMapper.toEntityFromCreateUpdatDto(updateCommentDto, comment);
         Comment updatedComment = commentRepository.save(comment);
         return commentMapper.toDto(updatedComment);
