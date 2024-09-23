@@ -22,7 +22,7 @@ public class UploadImage {
         Path filePath = Path.of("img", idImage + "." + getExtension(
                 Objects.requireNonNull(imageFile.getOriginalFilename())));
 
-        Files.createDirectories(filePath.getParent());
+        Files.createDirectories(filePath);
         Files.deleteIfExists(filePath);
 
         try (
@@ -37,7 +37,7 @@ public class UploadImage {
                     filePath, e);
             throw new RuntimeException(e.getMessage());
         }
-        return filePath.toString();
+        return "/" + idImage + "." + getExtension(imageFile.getOriginalFilename());
     }
 
     static String getExtension(String fileName) {

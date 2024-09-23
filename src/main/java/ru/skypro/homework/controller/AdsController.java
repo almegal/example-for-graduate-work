@@ -5,12 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -180,24 +178,4 @@ public class AdsController {
         return adsService.updateImageAd(id, file);
 
     }
-
-
-    @ApiOperation(value = "Выгрузка картинки из сервера в объявление",
-            notes = "Позволяет выгрузить картинку из сервера в объявление")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "OK"),
-            @ApiResponse(
-                    code = 404,
-                    message = "Not found")
-    })
-    @GetMapping(value = "/image/{id}")
-    public ResponseEntity<byte[]> downloadImage(@PathVariable Long id,
-                                                HttpServletResponse response) {
-        byte[] image = imageUploadService.getImageByAdId(id);
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        return ResponseEntity.ok(image);
-    }
-
 }

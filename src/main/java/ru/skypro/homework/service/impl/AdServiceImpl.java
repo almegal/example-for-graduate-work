@@ -56,7 +56,8 @@ public class AdServiceImpl implements AdService {
         adMapper.updateAdFromUpdateAdDto(createAd, ad);
         ad.setAuthor(user);
         try {
-            ad.setImageUrl(uploadImage(image));
+            String urlImage = uploadImage(image).replace("/", "");
+            ad.setImageUrl(urlImage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,6 +74,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     @PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#id)")
+    @Transactional
     public void removeAd(Long id) throws IOException {
         Ad ad = findAdById(id);
         Path path = Path.of(ad.getImageUrl());
@@ -109,7 +111,8 @@ public class AdServiceImpl implements AdService {
     public AdDto updateImageAd(Long id, MultipartFile file) {
         Ad ad = findAdById(id);
         try {
-            ad.setImageUrl(uploadImage(file));
+            String urlImage = uploadImage(file).replace("/", "");
+            ad.setImageUrl(urlImage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
