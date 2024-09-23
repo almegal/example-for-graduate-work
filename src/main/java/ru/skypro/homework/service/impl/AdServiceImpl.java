@@ -8,7 +8,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.UserService;
 
@@ -34,8 +32,8 @@ public class AdServiceImpl implements AdService {
 
     private final AdMapper adMapper;
     private final AdRepository adRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
+    private final SecurityServiceImpl securityService;
 
     @Override
     public AdsDto getAds() {
@@ -51,13 +49,15 @@ public class AdServiceImpl implements AdService {
     public AdDto addAd(CreateOrUpdateAdDto createAd,
                        MultipartFile image) {
         Ad ad = new Ad();
-        User user = userService.getUserByEmailFromDb(getAuthenticatedUserName());
+
+        String username = securityService.getAuthenticatedUserName();
+        User user = userService.getUserByEmailFromDb(username);
 
         adMapper.updateAdFromUpdateAdDto(createAd, ad);
-
         ad.setAuthor(user);
         try {
-            ad.setImageUrl(uploadImage(image));
+            String urlImage = uploadImage(image).replace("/", "");
+            ad.setImageUrl(urlImage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,9 +94,12 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public AdsDto getAdsByAuthenticatedUser() {
-        User user = userService.getUserByEmailFromDb(getAuthenticatedUserName());
+        String username = securityService.getAuthenticatedUserName();
+        User user = userService.getUserByEmailFromDb(username);
+
         List<Ad> ads = adRepository.findAllByUserId(user.getId());
         List<AdDto> adDtos = adMapper.toDtos(ads);
+
         return AdsDto.builder()
                 .count(ads.size())
                 .results(adDtos)
@@ -108,7 +111,8 @@ public class AdServiceImpl implements AdService {
     public AdDto updateImageAd(Long id, MultipartFile file) {
         Ad ad = findAdById(id);
         try {
-            ad.setImageUrl(uploadImage(file));
+            String urlImage = uploadImage(file).replace("/", "");
+            ad.setImageUrl(urlImage);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -123,24 +127,11 @@ public class AdServiceImpl implements AdService {
                 .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
     }
 
-
     public boolean isAdCreatorOrAdmin(Long id) {
         Ad ad = findAdById(id);
-        String email = getAuthenticatedUserName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        log.info(" ------ {} {}", ad, user);
+        String email = securityService.getAuthenticatedUserName();
+        User user = userService.getUserByEmailFromDb(email);
         return user.getRole() == Role.ADMIN ||
                 email.equals(ad.getAuthor().getEmail());
     }
-
-
-    private String getAuthenticatedUserName() {
-        return SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-    }
-
 }

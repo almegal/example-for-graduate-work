@@ -43,9 +43,6 @@ public class CommentsController {
     @GetMapping("/ads/{id}/comments")
     public CommentsDto getComments(@PathVariable("id") Long adId) {
         CommentsDto commentsDto = commentsService.getCommentsByAdId(adId);
-        if (commentsDto.getCount() == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Комментарии не найдены");
-        }
         return commentsDto;
     }
 

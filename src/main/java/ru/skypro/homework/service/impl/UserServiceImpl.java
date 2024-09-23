@@ -4,7 +4,7 @@ import static ru.skypro.homework.util.UploadImage.uploadImage;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +26,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final SecurityServiceImpl securityService;
 
     @Override
     @Transactional
     public boolean updatePassword(NewPasswordDto newPassword) {
-        String email = getAuthenticatedUserName();
+        String email = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(email);
 
         boolean isEqualsPass = user.getPassword()
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserDto getAuthenticatedUser() {
-        String email = getAuthenticatedUserName();
+        String email = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(email);
         return userMapper.toDto(user);
     }
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public UserDto updateAuthenticatedUserInfo(UpdateUserDto updateUser) {
-        String email = getAuthenticatedUserName();
+        String email = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(email);
         userMapper.updateUserFromUpdateUserDto(updateUser, user);
         return userMapper.toDto(user);
@@ -63,7 +64,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public boolean updateAuthenticatedUserImage(MultipartFile image) {
-        User user = getUserByEmailFromDb(getAuthenticatedUserName());
+        String username = securityService.getAuthenticatedUserName();
+        User user = getUserByEmailFromDb(username);
         try {
             user.setImage(uploadImage(image));
         } catch (IOException e) {
@@ -98,10 +100,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
-    private String getAuthenticatedUserName() {
-        return SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+    @Override
+    public UserDetails loadByUserName(String username) {
+        User user = getUserByEmailFromDb(username);
+        return new UserSecurityDetails(user);
     }
 }

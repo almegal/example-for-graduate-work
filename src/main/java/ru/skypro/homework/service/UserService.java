@@ -1,5 +1,6 @@
 package ru.skypro.homework.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.RegisterDto;
@@ -22,4 +23,6 @@ public interface UserService {
     boolean emailExists(String email);
 
     User getUserByEmailFromDb(String email);
+
+    UserDetails loadByUserName(String username);
 }
