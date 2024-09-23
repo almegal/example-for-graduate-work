@@ -12,13 +12,12 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.exception.ImageUploaderException;
 
 @Slf4j
 public class UploadImage {
 
     public static String uploadImage(MultipartFile imageFile)
-            throws ImageUploaderException, IOException {
+            throws IOException {
         String idImage = UUID.randomUUID().toString();
         Path filePath = Path.of("img", idImage + "." + getExtension(
                 Objects.requireNonNull(imageFile.getOriginalFilename())));
@@ -36,7 +35,7 @@ public class UploadImage {
         } catch (IOException e) {
             log.error("Error uploading image file path = {}",
                     filePath, e);
-            throw new ImageUploaderException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         return filePath.toString();
     }

@@ -15,12 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.test.context.support.WithMockUser;
 import ru.skypro.homework.ConstantGeneratorFotTest;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
@@ -30,6 +24,7 @@ import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.impl.CommentsServiceImpl;
+import ru.skypro.homework.service.impl.SecurityServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class CommentsServiceImplTest {
@@ -46,6 +41,8 @@ class CommentsServiceImplTest {
     @Mock
     private CommentMapper commentMapper;
 
+    @Mock
+    private SecurityServiceImpl securityService;
     @InjectMocks
     private CommentsServiceImpl commentsService;
 
@@ -84,20 +81,8 @@ class CommentsServiceImplTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com")
     void addComment() {
-        // Set up the security context
-        UserDetails userDetails = User
-                .withUsername("testuser@example.com")
-                .password("password")
-                .roles("USER")
-                .build();
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(
-                new UsernamePasswordAuthenticationToken(userDetails, null,
-                        userDetails.getAuthorities()));
-        SecurityContextHolder.setContext(securityContext);
-
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(adService.findAdById(1L)).thenReturn(ad);
         when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);

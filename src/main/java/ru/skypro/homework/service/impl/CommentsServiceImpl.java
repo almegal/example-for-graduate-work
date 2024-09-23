@@ -3,7 +3,6 @@ package ru.skypro.homework.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +28,7 @@ public class CommentsServiceImpl implements CommentsService {
     private final AdService adService;
     private final UserService userService;
     private final CommentMapper commentMapper;
+    private final SecurityServiceImpl securityService;
 
     @Override
     @Transactional(readOnly = true)
@@ -44,7 +44,8 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public CommentDto addComment(Long adId, CreateOrUpdateCommentDto createCommentDto) {
-        User user = userService.getUserByEmailFromDb(getAuthenticatedUserName());
+        String userName = securityService.getAuthenticatedUserName();
+        User user = userService.getUserByEmailFromDb(userName);
         Ad ad = adService.findAdById(adId);
 
         Comment comment = new Comment();
@@ -86,19 +87,12 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     public boolean isAdCreatorOrAdmin(Long id) {
-        String email = getAuthenticatedUserName();
+        String email = securityService.getAuthenticatedUserName();
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Комментарий не найден")
         );
-        User user = userService.getUserByEmailFromDb(getAuthenticatedUserName());
+        User user = userService.getUserByEmailFromDb(email);
         return user.getRole() == Role.ADMIN ||
                 email.equals(comment.getAuthor().getEmail());
-    }
-
-    private String getAuthenticatedUserName() {
-        return SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
     }
 }

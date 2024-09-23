@@ -7,12 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import ru.skypro.homework.repository.UserRepository;
-import ru.skypro.homework.service.impl.UserSecurityDetails;
+import ru.skypro.homework.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -31,10 +29,8 @@ public class WebSecurityConfig {
     };
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository repository) {
-        return userMail -> repository.findByEmail(userMail)
-                .map(UserSecurityDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("Такого пользователя нет"));
+    public UserDetailsService userDetailsService(UserService userService) {
+        return userService::loadByUserName;
     }
 
     @Bean

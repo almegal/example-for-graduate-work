@@ -5,15 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,8 +26,8 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.ImageUploadService;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -43,6 +38,7 @@ import ru.skypro.homework.service.AdService;
 public class AdsController {
 
     private final AdService adsService;
+    private final ImageUploadService imageUploadService;
 
 
     @ApiOperation(value = "Получение всех объявлений",
@@ -199,34 +195,9 @@ public class AdsController {
     @GetMapping(value = "/image/{id}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable Long id,
                                                 HttpServletResponse response) {
-        Ad ad = adsService.findAdById(id);
-        if (ad.getImageUrl() == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        Path path = Path.of(ad.getImageUrl());
-        try {
-
-            String contentType = Files.probeContentType(path);
-            if (contentType == null) {
-                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-            }
-            response.setContentType(contentType);
-            response.setHeader("Content-Disposition",
-                    "attachment; filename=\"" + path.getFileName() + "\"");
-
-            try (InputStream is = Files.newInputStream(path);
-                 OutputStream os = response.getOutputStream()) {
-
-                is.transferTo(os);
-                os.flush();
-            }
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            log.error("Error downloading image file for ad with id = {}, path = {}", ad.getId(),
-                    path, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        byte[] image = imageUploadService.getImageByAdId(id);
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        return ResponseEntity.ok(image);
     }
 
 }
