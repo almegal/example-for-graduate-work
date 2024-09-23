@@ -27,7 +27,6 @@ public class ConstantGeneratorFotTest {
     public static final String NEW_USER_LAST_NAME = "Blackwood";
     public static final String NEW_USER_PHONE = "9112443344";
     public static final Role NEW_USER_ROLE = Role.ADMIN;
-    public static final String NEW_USER_IMAGE = "Строка блеать?";
     public static final String NEW_USER_PASSWORD = "notsecretpassword";
 
     public static final Long AD_ID_1 = new Random().nextLong();
@@ -35,8 +34,6 @@ public class ConstantGeneratorFotTest {
     public static final String AD_DESCRIPTION_1 = "Description 1";
     public static final Integer AD_PRICE_1 = 5000;
     public static final String AD_IMAGE_1 = "/Users/alex/Desktop/photos_2/1.jpg";
-    public static final int AD_FILE_SIZE_1 = 24_440;
-    public static final String AD_MEDIA_TYPE_1 = "Media type 1";
     public static final User AD_AUTHOR_1 = userGenerator();
     public static final Long AD_AUTHOR_ID_1 = AD_AUTHOR_1.getId();
     public static final String AD_AUTHOR_EMAIL_1 = AD_AUTHOR_1.getEmail();
@@ -52,8 +49,6 @@ public class ConstantGeneratorFotTest {
     public static final String AD_DESCRIPTION_2 = "Description 2";
     public static final Integer AD_PRICE_2 = 6000;
     public static final String AD_IMAGE_2 = "/Users/alex/Desktop/photos_2/2.jpg";
-    public static final int AD_FILE_SIZE_2 = 30_440;
-    public static final String AD_MEDIA_TYPE_2 = "Media type 2";
     public static final User AD_AUTHOR_2 = userGenerator();
     public static final Long AD_AUTHOR_ID_2 = AD_AUTHOR_2.getId();
 
@@ -108,8 +103,6 @@ public class ConstantGeneratorFotTest {
         ad.setDescription(AD_DESCRIPTION_1);
         ad.setPrice(AD_PRICE_1);
         ad.setImageUrl(AD_IMAGE_1);
-        ad.setFileSize(AD_FILE_SIZE_1);
-        ad.setMediaType(AD_MEDIA_TYPE_1);
         ad.setAuthor(AD_AUTHOR_1);
         return ad;
     }
@@ -141,8 +134,7 @@ public class ConstantGeneratorFotTest {
         ad1.setDescription(AD_DESCRIPTION_1);
         ad1.setPrice(AD_PRICE_1);
         ad1.setImageUrl(AD_IMAGE_1);
-        ad1.setFileSize(AD_FILE_SIZE_1);
-        ad1.setMediaType(AD_MEDIA_TYPE_1);
+
         ad1.setAuthor(AD_AUTHOR_1);
         Ad ad2 = new Ad();
         ad2.setId(AD_ID_2);
@@ -150,8 +142,6 @@ public class ConstantGeneratorFotTest {
         ad2.setDescription(AD_DESCRIPTION_2);
         ad2.setPrice(AD_PRICE_2);
         ad2.setImageUrl(AD_IMAGE_2);
-        ad2.setFileSize(AD_FILE_SIZE_2);
-        ad2.setMediaType(AD_MEDIA_TYPE_2);
         ad2.setAuthor(AD_AUTHOR_2);
         return List.of(ad1, ad2);
     }
@@ -206,14 +196,5 @@ public class ConstantGeneratorFotTest {
                 .build();
     }
 
-    public static Comment commentGenerator(Ad ad, User user) {
-        Comment comment = new Comment();
-        comment.setId(1L);
-        comment.setText("Test Comment");
-        comment.setCreatedAt(System.currentTimeMillis());
-        comment.setAd(ad);
-        comment.setAuthor(user);
-        return comment;
-    }
 
 }

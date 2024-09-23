@@ -1,47 +1,39 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.security.core.userdetails.User;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.LoginDto;
 import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.service.AuthService;
+import ru.skypro.homework.service.UserService;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDetailsManager manager;
+    private final UserDetailsService manager;
     private final PasswordEncoder encoder;
-
-    public AuthServiceImpl(UserDetailsManager manager,
-                           PasswordEncoder passwordEncoder) {
-        this.manager = manager;
-        this.encoder = passwordEncoder;
-    }
+    private final UserService userService;
 
     @Override
-    public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
-            return false;
-        }
-        UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+    public boolean login(LoginDto loginDto) {
+        UserDetails userDetails = manager.loadUserByUsername(loginDto.getUsername());
+        return encoder.matches(loginDto.getPassword(), userDetails.getPassword());
     }
 
     @Override
     public boolean register(RegisterDto registerDto) {
-        if (manager.userExists(registerDto.getUsername())) {
+        if (userService.emailExists(registerDto.getUsername())) {
             return false;
         }
-        manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(registerDto.getPassword())
-                        .username(registerDto.getUsername())
-                        .roles(registerDto.getRole().name())
-                        .build());
-        return true;
+        registerDto
+                .setPassword(encoder.encode(registerDto.getPassword()));
+        return userService.saveUser(registerDto);
     }
-
 }
+

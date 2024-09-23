@@ -31,9 +31,5 @@ public interface AdMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "imageUrl", ignore = true)
-    @Mapping(target = "fileSize", ignore = true)
-    @Mapping(target = "mediaType", ignore = true)
     void updateAdFromUpdateAdDto(CreateOrUpdateAdDto dto, @MappingTarget Ad ad);
-
-
 }
