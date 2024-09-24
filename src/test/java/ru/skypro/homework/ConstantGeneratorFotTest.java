@@ -20,7 +20,7 @@ public class ConstantGeneratorFotTest {
     public static final String USER_LAST_NAME = "Show";
     public static final String USER_PHONE = "9112223344";
     public static final Role USER_ROLE = Role.USER;
-    public static final String USER_IMAGE = "Строка или массив байтов блеать?";
+    public static final String USER_IMAGE = "Строка или массив байтов?";
     public static final String USER_PASSWORD = "supersecretpassword";
     public static final String NEW_USER_EMAIL = "dontcool@mail.com";
     public static final String NEW_USER_FIRST_NAME = "Farhod";
