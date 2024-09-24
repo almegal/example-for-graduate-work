@@ -1,47 +1,39 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.security.core.userdetails.User;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.dto.LoginDto;
+import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.service.AuthService;
+import ru.skypro.homework.service.UserService;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDetailsManager manager;
+    private final UserDetailsService manager;
     private final PasswordEncoder encoder;
+    private final UserService userService;
 
-    public AuthServiceImpl(UserDetailsManager manager,
-                           PasswordEncoder passwordEncoder) {
-        this.manager = manager;
-        this.encoder = passwordEncoder;
+    @Override
+    public boolean login(LoginDto loginDto) {
+        UserDetails userDetails = manager.loadUserByUsername(loginDto.getUsername());
+        return encoder.matches(loginDto.getPassword(), userDetails.getPassword());
     }
 
     @Override
-    public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
+    public boolean register(RegisterDto registerDto) {
+        if (userService.emailExists(registerDto.getUsername())) {
             return false;
         }
-        UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+        registerDto
+                .setPassword(encoder.encode(registerDto.getPassword()));
+        return userService.saveUser(registerDto);
     }
-
-    @Override
-    public boolean register(Register register) {
-        if (manager.userExists(register.getUsername())) {
-            return false;
-        }
-        manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(register.getPassword())
-                        .username(register.getUsername())
-                        .roles(register.getRole().name())
-                        .build());
-        return true;
-    }
-
 }
+
