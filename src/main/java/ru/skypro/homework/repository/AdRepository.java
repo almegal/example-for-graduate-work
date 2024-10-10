@@ -9,6 +9,7 @@ import ru.skypro.homework.entity.Ad;
 
 @Repository
 public interface AdRepository extends JpaRepository<Ad, Long> {
+
     @Query("SELECT a FROM Ad a WHERE a.author.id = :userId")
     List<Ad> findAllByUserId(@Param("userId") Long userId);
 

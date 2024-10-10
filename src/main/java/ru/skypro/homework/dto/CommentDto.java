@@ -12,19 +12,14 @@ import ru.skypro.homework.util.OpenApiConstant;
 @Data
 @ApiModel(value = "Comment", description = "Модель комментария")
 public class CommentDto {
+
     @NotNull(message = "ID автора комментария не может быть Null")
     @ApiModelProperty(
             value = "ID автора комментария",
             example = OpenApiConstant.ID)
     private Long author;
 
-    @Pattern(
-            regexp = "^(http|https)://.*$",
-            message = "Ссылка на аватар автора комментария"
-    )
-    @ApiModelProperty(
-            value = "Ссылка на аватар автора комментария",
-            example = OpenApiConstant.IMAGE)
+    @ApiModelProperty(value = "Ссылка на аватар автора комментария", example = OpenApiConstant.IMAGE)
     private String authorImage;
 
     @NotBlank(message = "Поле не может быть пустым или состоять только из пробелов")

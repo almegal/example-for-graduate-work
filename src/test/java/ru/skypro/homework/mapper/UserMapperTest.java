@@ -24,7 +24,7 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.User;
 
 // toDo Переписать через параметарайзет тест (argsProvider? или просто сурс)
-// toDo задача команде на тесты маппинга по анологии
+// toDo задача команде на тесты маппинга по аналогии
 public class UserMapperTest {
     static final User USER_ENTITY = userGenerator();
     static final UserDto USER_DTO = userDtoGenerator();

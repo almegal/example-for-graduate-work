@@ -2,10 +2,12 @@ package ru.skypro.homework.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
@@ -13,23 +15,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.ConstantGeneratorFotTest;
-import ru.skypro.homework.Repository.AdRepository;
-import ru.skypro.homework.Repository.UserRepository;
-import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.AdsDto;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
-import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.exception.UnauthorizedException;
 import ru.skypro.homework.mapper.AdMapper;
+import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.impl.AdServiceImpl;
+import ru.skypro.homework.service.impl.SecurityServiceImpl;
+import ru.skypro.homework.util.UploadImage;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +37,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static ru.skypro.homework.ConstantGeneratorFotTest.*;
 
+
 @ExtendWith(MockitoExtension.class)
-public class AdServiceImplTest {
+class AdServiceImplTest {
 
     @Mock
     private AdMapper adMapper;
@@ -48,45 +48,52 @@ public class AdServiceImplTest {
     private AdRepository adRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Mock
+    private SecurityServiceImpl securityService;
 
     @InjectMocks
     private AdServiceImpl adService;
 
     private ObjectMapper objectMapper;
-
     private User user;
+    private User userAdmin;
     private Ad ad1;
     private AdDto adDto1;
+    private Ad ad2;
+    private AdDto adDto2;
+    private AdDto newAdDto1;
+    private ExtendedAdDto extendedAdDto;
     private List<Ad> ads;
     private List<AdDto> adsDto;
-    private CreateOrUpdateAdDto createOrUpdateAdDto;
-    private ExtendedAdDto extendedAdDto;
-    private AdDto newAdDto1;
+    private CreateOrUpdateAdDto createOrUpdateAdDto1;
+    private CreateOrUpdateAdDto createOrUpdateAdDto2;
 
 
     @BeforeEach
     void setUp() {
         user = ConstantGeneratorFotTest.userGenerator();
-        ad1 = ConstantGeneratorFotTest.adGenerator();
-        adDto1 = ConstantGeneratorFotTest.adDtoGenerator();
+        userAdmin = ConstantGeneratorFotTest.userAdminGenerator();
+        ad1 = ConstantGeneratorFotTest.adGenerator1();
+        adDto1 = ConstantGeneratorFotTest.adDtoGenerator1();
+        ad2 = ConstantGeneratorFotTest.adGenerator2();
+        adDto2 = ConstantGeneratorFotTest.adDtoGenerator2();
         ads = ConstantGeneratorFotTest.listAdsGenerator();
         adsDto = ConstantGeneratorFotTest.listAdsDtoGenerator();
-        createOrUpdateAdDto = ConstantGeneratorFotTest.createOrUpdateAdDtoGenerator();
+        createOrUpdateAdDto1 = ConstantGeneratorFotTest.createOrUpdateAdDtoGenerator1();
+        createOrUpdateAdDto2 = ConstantGeneratorFotTest.createOrUpdateAdDtoGenerator2();
         extendedAdDto = ConstantGeneratorFotTest.extendedAdDtoGenerator();
         newAdDto1 = ConstantGeneratorFotTest.newAdDtoGenerator();
-
     }
 
     @Test
-    void testGetAds() {
+    void testGetAds_Success() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
         when(adRepository.findAll()).thenReturn(ads);
         when(adMapper.toDtos(any())).thenReturn(adsDto);
 
-        AdsDto actual = adService.getAds(authentication);
+        AdsDto actual = adService.getAds();
 
         assertNotNull(actual);
         assertEquals(2, actual.getCount());
@@ -96,66 +103,57 @@ public class AdServiceImplTest {
     }
 
     @Test
-    void testGetAdsUnauthorizedException() {
+    void testAddAd_Success() throws IOException {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(false);
-        assertThrows(UnauthorizedException.class, () -> adService.getAds(authentication));
+//        mockStatic(UploadImage.class);
+//        doNothing().when(UploadImage.uploadImage(any()));
+
+
+
+        Path path = Path.of("images/" + AD_IMAGE_1);
+        String name = AD_IMAGE_1.substring(0, AD_IMAGE_1.indexOf("."));
+        String contentType = Files.probeContentType(path);
+        byte[] content = Files.readAllBytes(path);
+        MockMultipartFile image = new MockMultipartFile(name, AD_IMAGE_1, contentType, content);
+        // name - имя файла без "." и расширения; AD_IMAGE_1 - имя файла с "." и расширением;
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
+        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(adDto1);
+        //when(image.getBytes()).thenReturn(new byte[]{});
+        //when(adService.addAd(eq(createOrUpdateAdDto), any(MultipartFile.class))).thenReturn(adDto1);
+
+        AdDto expected = AdDto.builder()
+                .author(AD_AUTHOR_ID_1)
+                .image("/image/" + AD_IMAGE_1)
+                .pk(AD_ID_1)
+                .price(AD_PRICE_1)
+                .title(AD_TITLE_1)
+                .build();
+
+        try (MockedStatic<UploadImage> utilities =  Mockito.mockStatic(UploadImage.class)) {
+            //добавляем правило
+            utilities.when(() -> UploadImage.uploadImage(any())).thenReturn("/test.jpg");
+            //проверяем, что правило работает
+        }
+
+        AdDto actual = adService.addAd(createOrUpdateAdDto1, image);
+
+        assertNotNull(actual);
+        assertEquals(expected.getPk(), actual.getPk());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEquals(expected.getPrice(), actual.getPrice());
+        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getAuthor(), actual.getAuthor());
+        verify(securityService, times(1)).getAuthenticatedUserName();
+        verify(userService, times(1)).getUserByEmailFromDb(user.getEmail());
+        verify(adRepository, times(1)).save(any(Ad.class));
     }
 
 //    @Test
-//    void testAddAd() throws IOException {
-//
-//        Path path = Paths.get(AD_IMAGE_1);
-//        String name = path.getFileName().toString();
-//        String originalFileName = name;
-//        String contentType = Files.probeContentType(path);
-//        byte[] content = Files.readAllBytes(path);
-//        MockMultipartFile image = new MockMultipartFile(name, originalFileName, contentType, content);
-//        MockMultipartFile properties = new MockMultipartFile(
-//                "properties",
-//                "",
-//                "application/json",
-//                objectMapper.writeValueAsBytes(createOrUpdateAdDto));
-//
-//        Authentication authentication = Mockito.mock(Authentication.class);
-//        when(authentication.isAuthenticated()).thenReturn(true);
-//        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.ofNullable(user));
-//        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
-//        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
-//        when(adMapper.toDto(any())).thenReturn(adDto1);
-//        when(image.getBytes()).thenReturn(new byte[]{});
-//        when(adService.addAd(eq(createOrUpdateAdDto), any(MultipartFile.class), any(Authentication.class)))
-//                .thenReturn(adDto1);
-//
-//        AdDto expected = AdDto.builder()
-//                .author(AD_AUTHOR_ID_1)
-//                .image(AD_IMAGE_1)
-//                .pk(AD_ID_1)
-//                .price(AD_NEW_PRICE_1)
-//                .title(AD_NEW_TITLE_1)
-//                .build();
-//
-//        AdDto actual = adService.addAd(createOrUpdateAdDto, image, authentication);
-//        byte[] expectedImage = Files.readAllBytes(Path.of(
-//                "/Users/alex/Desktop/Skypro_проекты/example-for-graduate-work/photos_2/" + AD_ID_1 + ".jpg"));
-//        byte[] actualImage =
-//
-//
-//                assertNotNull(actual);
-//        assertEquals(expected.getPk(), actual.getPk());
-//        assertEquals(expected.getTitle(), actual.getTitle());
-//        assertEquals(expected.getPrice(), actual.getPrice());
-//        assertEquals(expected.getImage(), actual.getImage());
-//        assertEquals(expected.getAuthor(), actual.getAuthor());
-//        verify(userRepository, times(1)).findByEmail(authentication.getName());
-//        verify(adRepository, times(1)).save(any(Ad.class));
-//          //или
-//        verify(adRepository, times(1)).save(ad1);
-//    }
-//
-//    @Test
-//    void testAddAdUnauthorizedException() {
+//    void testAddAd_ThrowsUnauthorizedException() {
 //
 //        Authentication authentication = Mockito.mock(Authentication.class);
 //        when(authentication.isAuthenticated()).thenReturn(false);
@@ -164,28 +162,22 @@ public class AdServiceImplTest {
 //                fileImage,
 //                authentication));
 //    }
-//
-//    @Test
-//    void testAddAdUserNotFoundException() {
-//
-//        Authentication authentication = Mockito.mock(Authentication.class);
-//        when(authentication.isAuthenticated()).thenReturn(true);
-//
-//        assertThrows(NotFoundException.class, () -> adService.addAd(
-//                createOrUpdateAdDto,
-//                fileImage,
-//                authentication));
-//    }
 
     @Test
-    void testGetExtendedAd() {
+    void testAddAdUser_ThrowsNotFoundException() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(adRepository.findById(any(Long.class))).thenReturn(Optional.of(ad1));
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenThrow(new NotFoundException("Пользователь не найден"));
+        assertThrows(NotFoundException.class, () -> adService.addAd(createOrUpdateAdDto1, null));
+    }
+
+    @Test
+    void testGetExtendedAd_Success() {
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(adMapper.toExtendedDto(any(Ad.class))).thenReturn(extendedAdDto);
 
-        ExtendedAdDto actual = adService.getExtendedAd(ad1.getId(), authentication);
+        ExtendedAdDto actual = adService.getExtendedAd(ad1.getId());
 
         assertNotNull(actual);
         assertEquals(extendedAdDto.getPk(), actual.getPk());
@@ -201,71 +193,62 @@ public class AdServiceImplTest {
     }
 
     @Test
-    void testGetExtendedAdUnauthorizedException() {
+    void testGetExtendedAd_ThrowsNotFoundException() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(false);
-        assertThrows(UnauthorizedException.class, () -> adService.getExtendedAd(ad1.getId(), authentication));
+        when(adRepository.findById(anyLong())).thenThrow(new NotFoundException("Объявление не найдено"));
+        assertThrows(NotFoundException.class, () -> adService.getExtendedAd(ad1.getId()));
     }
 
     @Test
-    void testGetExtendedAdNotFoundException() {
+    void testRemoveAd_Success() throws IOException {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
+//        mockStatic(Files.class);
+//        doNothing().when(Files.deleteIfExists(any()));
+//        doThrow(new RuntimeException()).when(Files.class);
+//        Files.deleteIfExists(any());
+//        verifyStatic(times(1));
+//        Files.deleteIfExists(any());
 
-        assertThrows(NotFoundException.class, () -> adService.getExtendedAd(ad1.getId(), authentication));
+        when(adRepository.findById(ad2.getId())).thenReturn(Optional.of(ad2));
+        doNothing().when(adRepository).deleteById(ad2.getId());
+
+        adService.removeAd(ad2.getId());
+
+        assertFalse(Files.exists(Path.of("images/" + ad2.getImageUrl())));
+        verify(adRepository, times(1)).findById(ad2.getId());
+        verify(adRepository, times(1)).deleteById(ad2.getId());
     }
 
     @Test
-    void testRemoveAd() throws IOException {
+    @Disabled("Тест временно отключен")
+    void testRemoveAd_ThrowsUnauthorizedException() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(adRepository.findById(any(Long.class))).thenReturn(Optional.of(ad1));
-        doNothing().when(adRepository).deleteById(any(Long.class));
 
-        adService.removeAd(ad1.getId(), authentication);
-
-        verify(adRepository, times(1)).findById(ad1.getId());
-        verify(adRepository, times(1)).deleteById(ad1.getId());
     }
 
     @Test
-    void testRemoveAdUnauthorizedException() {
+    void testRemoveAd_ThrowsNotFoundException() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(false);
-        assertThrows(UnauthorizedException.class, () -> adService.removeAd(ad1.getId(), authentication));
+        when(adRepository.findById(anyLong())).thenThrow(new NotFoundException("Объявление не найдено"));
+        assertThrows(NotFoundException.class, () -> adService.removeAd(180L));
     }
 
     @Test
-    void testRemoveAdNotFoundException() {
-
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
-
-        assertThrows(NotFoundException.class, () -> adService.removeAd(ad1.getId(), authentication));
-    }
-
-    @Test
-    void testUpdateAd() {
-
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(adRepository.findById(any(Long.class))).thenReturn(Optional.of(ad1));
+    void testUpdateAd_Success() {
+        // необходимо вызвать метод isAdCreatorOrAdmin()
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(adRepository.save(any(Ad.class))).thenReturn(ad1);
         when(adMapper.toDto(any(Ad.class))).thenReturn(newAdDto1);
 
         AdDto expected = AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
-                .image(AD_IMAGE_1)
+                .image("/image/" + AD_IMAGE_1)
                 .pk(AD_ID_1)
                 .price(AD_NEW_PRICE_1)
                 .title(AD_NEW_TITLE_1)
                 .build();
 
-        AdDto actual = adService.updateAd(ad1.getId(), createOrUpdateAdDto, authentication);
+        AdDto actual = adService.updateAd(ad1.getId(), createOrUpdateAdDto2);
 
         assertNotNull(actual);
         assertEquals(expected.getPk(), actual.getPk());
@@ -278,34 +261,111 @@ public class AdServiceImplTest {
     }
 
     @Test
-    void testUpdateAdUnauthorizedException() {
+    void testUpdateAd_ThrowsNotFoundException() {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(false);
-        assertThrows(UnauthorizedException.class, () -> adService.updateAd(ad1.getId(), createOrUpdateAdDto, authentication));
+        when(adRepository.findById(anyLong())).thenThrow(new NotFoundException("Объявление не найдено"));
+        assertThrows(NotFoundException.class, () -> adService.updateAd(134L, createOrUpdateAdDto2));
     }
 
     @Test
-    void testUpdateAdNotFoundException() {
+    void testUpdateImageAd_Success() throws Exception {
 
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.isAuthenticated()).thenReturn(true);
+        Path path = Path.of("images/" + AD_IMAGE_1);
+        String name = AD_IMAGE_1.substring(0, AD_IMAGE_1.indexOf("."));
+        String contentType = Files.probeContentType(path);
+        byte[] content = Files.readAllBytes(path);
+        MockMultipartFile image = new MockMultipartFile(name, AD_IMAGE_1, contentType, content);
 
-        assertThrows(NotFoundException.class, () -> adService.updateAd(ad1.getId(), createOrUpdateAdDto, authentication));
+        // необходимо вызвать метод isAdCreatorOrAdmin()
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(adDto1);
+
+        AdDto expected = AdDto.builder()
+                .author(AD_AUTHOR_ID_1)
+                .image("/image/" + AD_IMAGE_1)
+                .pk(AD_ID_1)
+                .price(AD_PRICE_1)
+                .title(AD_TITLE_1)
+                .build();
+
+        AdDto actual = adService.updateImageAd(ad1.getId(), image);
+
+        assertNotNull(actual);
+        assertEquals(expected.getPk(), actual.getPk());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEquals(expected.getPrice(), actual.getPrice());
+        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getAuthor(), actual.getAuthor());
+        verify(adRepository, times(1)).findById(ad1.getId());
+        verify(adRepository, times(1)).save(ad1);
     }
 
+    @Test
+    void testUpdateImageAd_ThrowsNotFoundException() {
 
+        when(adRepository.findById(anyLong())).thenThrow(new NotFoundException("Объявление не найдено"));
+        assertThrows(NotFoundException.class, () -> adService.updateImageAd(134L, null));
+    }
 
-//    @Test
-//    void testUpdateImageAd() {
-//
-//        Authentication authentication = Mockito.mock(Authentication.class);
-//        when(authentication.isAuthenticated()).thenReturn(true);
-//        when(adRepository.findById(any(Long.class))).thenReturn(Optional.of(ad1));
-//
-//        byte[] image = adService.updateImageAd(ad1.getId(), file, authentication);
-//
-//    }
+    @Test
+    void testFindAdById_Success() {
 
-    
+        doReturn(Optional.of(ad1)).when(adRepository).findById(anyLong());
+        // как правильно: anyLong() или Long.class ?
+
+        Ad actual = adService.findAdById(ad1.getId());
+
+        assertAll("Сложный сценарий сравнения объявления",
+                () -> assertEquals(ad1.getId(), actual.getId()),
+                () -> assertEquals(ad1.getDescription(), actual.getDescription()),
+                () -> assertEquals(ad1.getPrice(), actual.getPrice()),
+                () -> assertEquals(ad1.getTitle(), actual.getTitle()),
+                () -> assertEquals(ad1.getImageUrl(), actual.getImageUrl()),
+                () -> assertEquals(ad1.getAuthor(), actual.getAuthor())
+        );
+    }
+
+    @Test
+    void testFindAdById_ThrowsNotFoundException() {
+
+        doThrow(new NotFoundException("Объявление не найдено")).when(adRepository).findById(153L);
+        assertThrows(NotFoundException.class, () -> adService.findAdById(153L));
+
+    }
+
+    @Test
+    void testIsAdCreatorOrAdmin1_Success() {
+
+        doReturn(Optional.of(ad1)).when(adRepository).findById(anyLong());
+        doReturn(user.getEmail()).when(securityService).getAuthenticatedUserName();
+        doReturn(user).when(userService).getUserByEmailFromDb(anyString());
+        ad1.getAuthor().setEmail("test@gmail.com");
+        //doReturn(user.getEmail()).when(ad1).getAuthor().getEmail();
+
+        boolean actualIsAuthorOfAd = adService.isAdCreatorOrAdmin(user.getId());
+        assertFalse(actualIsAuthorOfAd);
+
+        verify(adRepository, times(1)).findById(anyLong());
+        verify(securityService, times(1)).getAuthenticatedUserName();
+        verify(userService, times(1)).getUserByEmailFromDb(user.getEmail());
+    }
+
+    @Test
+    void testIsAdCreatorOrAdmin2_Success() {
+
+        doReturn(Optional.of(ad1)).when(adRepository).findById(anyLong());
+        doReturn(userAdmin.getEmail()).when(securityService).getAuthenticatedUserName();
+        doReturn(userAdmin).when(userService).getUserByEmailFromDb(anyString());
+        userAdmin.setRole(Role.USER);
+//        doReturn(Role.ADMIN).when(userAdmin).getRole();
+
+        boolean actualIsAdmin = adService.isAdCreatorOrAdmin(userAdmin.getId());
+        assertFalse(actualIsAdmin);
+
+        verify(adRepository, times(1)).findById(anyLong());
+        verify(securityService, times(1)).getAuthenticatedUserName();
+        verify(userService, times(1)).getUserByEmailFromDb(userAdmin.getEmail());
+    }
+
 }

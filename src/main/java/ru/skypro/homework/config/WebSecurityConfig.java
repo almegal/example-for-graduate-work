@@ -44,6 +44,8 @@ public class WebSecurityConfig {
                                         .mvcMatchers(AUTH_WHITELIST)
                                         .permitAll()
                                         .mvcMatchers("/ads/**", "/users/**")
+                                        // закрываем доступ к методам указанных контроллеров не аутентифицированным
+                                        // пользователям
                                         .authenticated())
                 .httpBasic(withDefaults());
         return http.build();

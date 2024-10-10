@@ -1,16 +1,15 @@
 package ru.skypro.homework.service.impl;
 
-import static ru.skypro.homework.util.UploadImage.uploadImage;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
-import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.User;
@@ -18,6 +17,7 @@ import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.util.UploadImage;
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +28,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final SecurityServiceImpl securityService;
 
+    /**
+     * Метод по обновлению пароля.
+     * В качестве аргумента данный метод принимает модель по обновлению пароля, содержащую текущий пароль и новый пароль.
+     * Из контекста безопасности получаем логин текущего пользователя, по логину получаем самого пользователя.
+     * Если пароль, извлеченный из текущего пользователя, совпадает с паролем, введенным данным пользователем,
+     * то обновляем пароль пользователя, получив новый пароль из модели по обновлению пароля (тоже введенный пользователем).
+     * @param newPassword - новый пароль
+     * @return true, если пароль, введенный пользователем, совпал с паролем текущего пользователя, иначе - false.
+     */
     @Override
     @Transactional
     public boolean updatePassword(NewPasswordDto newPassword) {
         String email = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(email);
 
-        boolean isEqualsPass = user.getPassword()
-                .equals(newPassword.getCurrentPassword());
-
+        boolean isEqualsPass = user.getPassword().equals(newPassword.getCurrentPassword());
         if (isEqualsPass) {
             userMapper.updateUserPasswordFromDto(newPassword, user);
             return true;
@@ -63,46 +70,43 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public boolean updateAuthenticatedUserImage(MultipartFile image) {
+    public UserDto updateAuthenticatedUserImage(MultipartFile file) {
         String username = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(username);
         try {
-            user.setImage(uploadImage(image));
+            String urlImage = UploadImage.uploadImage(file);
+            user.setImage(urlImage);
+            // В сущность User сохраняется путь к файлу, состоящий только из имени файла (без имени папки и "/")
         } catch (IOException e) {
+            log.error("Error uploading image file path = {}", user.getImage(), e);
             throw new RuntimeException(e);
         }
         userRepository.save(user);
-        return true;
+        return userMapper.toDto(user);
     }
 
-    @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public boolean saveUser(RegisterDto dto) {
-        if (userRepository.existsByEmail(dto.getUsername())) {
-            throw new IllegalArgumentException("Пользователь с таким email уже существует");
-        }
-        User user = userMapper.toEntityFromRegisterDto(dto);
-        userRepository.save(user);
-        return true;
-    }
+//    @Override
+//    @Transactional(isolation = Isolation.REPEATABLE_READ)
+//    public boolean saveUser(User user) {
+//        return userRepository.save(user);
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public boolean emailExists(String email) {
+//        return userRepository.existsByEmail(email);
+//    }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public User getUserByEmailFromDb(String email) {
-        return userRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-    }
 
     @Override
     public UserDetails loadByUserName(String username) {
         User user = getUserByEmailFromDb(username);
         return new UserSecurityDetails(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserByEmailFromDb(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 }

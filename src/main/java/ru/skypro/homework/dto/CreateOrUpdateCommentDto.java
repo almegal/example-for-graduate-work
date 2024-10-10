@@ -12,14 +12,14 @@ import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
 @Builder
-@ApiModel(
-        value = "CreateOrUpdateComment",
-        description = "Модель для создания или обновления комментария")
+@ApiModel(value = "CreateOrUpdateComment", description = "Модель для создания или обновления комментария")
 public class CreateOrUpdateCommentDto {
+
     @NotBlank
     @Size(min = 8, max = 64)
     @ApiModelProperty(value = "Текст комментария", example = OpenApiConstant.TEXT)
     private String text;
+
     @JsonCreator
     public CreateOrUpdateCommentDto(@JsonProperty("text") String text) {
         this.text = text;

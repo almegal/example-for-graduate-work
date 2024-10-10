@@ -37,7 +37,7 @@ import ru.skypro.homework.service.impl.UserSecurityDetails;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
-public class CommentsControllerIntegrationTest {
+public class CommentControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -74,7 +74,7 @@ public class CommentsControllerIntegrationTest {
         user = userRepository.save(user); // Сохраняем и получаем пользователя с ID
 
         // Затем сохраняем объявление, убедившись, что автор установлен
-        ad = ConstantGeneratorFotTest.adGenerator();
+        ad = ConstantGeneratorFotTest.adGenerator1();
         ad.setAuthor(user);
         ad = adRepository.save(ad); // Сохраняем и получаем объявление с ID
 

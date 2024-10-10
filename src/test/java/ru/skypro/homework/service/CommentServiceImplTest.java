@@ -21,13 +21,14 @@ import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
+import ru.skypro.homework.entity.User;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.impl.CommentsServiceImpl;
 import ru.skypro.homework.service.impl.SecurityServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-class CommentsServiceImplTest {
+class CommentServiceImplTest {
 
     @Mock
     private CommentRepository commentRepository;
@@ -43,6 +44,7 @@ class CommentsServiceImplTest {
 
     @Mock
     private SecurityServiceImpl securityService;
+
     @InjectMocks
     private CommentsServiceImpl commentsService;
 
@@ -50,11 +52,11 @@ class CommentsServiceImplTest {
     private CommentDto commentDto;
     private CreateOrUpdateCommentDto createOrUpdateCommentDto;
     private Ad ad;
-    private ru.skypro.homework.entity.User user;
+    private User user;
 
     @BeforeEach
     void setUp() {
-        ad = ConstantGeneratorFotTest.adGenerator();
+        ad = ConstantGeneratorFotTest.adGenerator1();
         user = ConstantGeneratorFotTest.userGenerator();
         comment = ConstantGeneratorFotTest.commentGenerator(ad, user);
 

@@ -13,6 +13,7 @@ public class LoginDto {
     @ApiModelProperty(value = "Пароль", example = OpenApiConstant.USER_PASS)
     @Size(min = 4, max = 32)
     private String password;
+
     @ApiModelProperty(value = "Имя пользователя", example = OpenApiConstant.USER_NAME)
     @Size(min = 8, max = 16)
     private String username;

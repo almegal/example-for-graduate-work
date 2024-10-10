@@ -22,8 +22,6 @@ public class AdDto {
     @ApiModelProperty(value = "Путь к картинке объявления", example = OpenApiConstant.AD_IMAGE)
     private String image;
 
-    // Согласно описанию апи мы сами задаем айди
-    // не генерируем его?
     @NotNull(message = "ID объявления не может быть null")
     @ApiModelProperty(value = "ID объявления", example = OpenApiConstant.AD_ID)
     private Long pk;

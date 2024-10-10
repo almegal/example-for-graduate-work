@@ -3,27 +3,8 @@ package ru.skypro.homework.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_EMAIL_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_FIRST_NAME_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_ID_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_ID_2;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_LAST_NAME_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_AUTHOR_PHONE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_DESCRIPTION_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_ID_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_ID_2;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_IMAGE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_IMAGE_2;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_DESCRIPTION_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_PRICE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_NEW_TITLE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_PRICE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_PRICE_2;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_TITLE_1;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_TITLE_2;
-import static ru.skypro.homework.ConstantGeneratorFotTest.adGenerator;
-import static ru.skypro.homework.ConstantGeneratorFotTest.createOrUpdateAdDtoGenerator;
-import static ru.skypro.homework.ConstantGeneratorFotTest.listAdsGenerator;
+import static ru.skypro.homework.ConstantGeneratorFotTest.*;
+
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +15,9 @@ import ru.skypro.homework.entity.Ad;
 
 public class AdMapperTest {
 
-    static final Ad AD_ENTITY = adGenerator();
+    static final Ad AD_ENTITY = adGenerator1();
     static final List<Ad> ADS_ENTITY = listAdsGenerator();
-    static final CreateOrUpdateAdDto CREATE_OR_UPDATE_AD_DTO = createOrUpdateAdDtoGenerator();
+    static final CreateOrUpdateAdDto CREATE_OR_UPDATE_AD_DTO = createOrUpdateAdDtoGenerator2();
     private final AdMapper mapper = AdMapper.INSTANCE;
 
 
@@ -116,12 +97,12 @@ public class AdMapperTest {
     @Test
     @DisplayName("Корректно обновляет данные из CreateOrUpdateAdDto в Ad")
     public void shouldCorrectMapFromCreateOrUpdateAdDtoToAd() {
-        Ad expected = adGenerator();
+        Ad expected = adGenerator1();
         expected.setTitle(AD_NEW_TITLE_1);
         expected.setPrice(AD_NEW_PRICE_1);
         expected.setDescription(AD_NEW_DESCRIPTION_1);
 
-        Ad actual = adGenerator();
+        Ad actual = adGenerator1();
         mapper.updateAdFromUpdateAdDto(CREATE_OR_UPDATE_AD_DTO, actual);
 
         assertEquals(expected.getId(), actual.getId());

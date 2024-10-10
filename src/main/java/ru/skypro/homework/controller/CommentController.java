@@ -27,7 +27,7 @@ import ru.skypro.homework.service.CommentsService;
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "Комментарии", value = "API для управления комментариями")
-public class CommentsController {
+public class CommentController {
 
     private final CommentsService commentsService;
 
@@ -42,8 +42,7 @@ public class CommentsController {
     })
     @GetMapping("/ads/{id}/comments")
     public CommentsDto getComments(@PathVariable("id") Long adId) {
-        CommentsDto commentsDto = commentsService.getCommentsByAdId(adId);
-        return commentsDto;
+        return commentsService.getCommentsByAdId(adId);
     }
 
     @ApiOperation(value = "Добавление комментария к объявлению",
@@ -53,6 +52,9 @@ public class CommentsController {
             @ApiResponse(
                     code = 200,
                     message = "OK"),
+            @ApiResponse(
+                    code = 400,
+                    message = "Bad Request"),
             @ApiResponse(
                     code = 401,
                     message = "Unauthorized"),
@@ -76,8 +78,7 @@ public class CommentsController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @DeleteMapping("/ads/{adId}/comments/{commentId}")
-    public void deleteComment(@PathVariable("adId") Long adId,
-                              @PathVariable("commentId") Long commentId) {
+    public void deleteComment(@PathVariable("adId") Long adId, @PathVariable("commentId") Long commentId) {
         try {
             commentsService.deleteComment(adId, commentId);
         } catch (Exception e) {
@@ -92,6 +93,9 @@ public class CommentsController {
             @ApiResponse(
                     code = 200,
                     message = "OK"),
+            @ApiResponse(
+                    code = 400,
+                    message = "Bad Request"),
             @ApiResponse(
                     code = 401,
                     message = "Unauthorized"),

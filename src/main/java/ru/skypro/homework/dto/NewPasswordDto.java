@@ -10,6 +10,7 @@ import ru.skypro.homework.util.OpenApiConstant;
 @Data
 @ApiModel(value = "NewPassword", description = "Модель для обновления пароля")
 public class NewPasswordDto {
+
     @NotNull(message = "Текущий пароль не может быть Null")
     @Size(min = 8, max = 16, message = "Пароль должен быть от 8 до 16 символов")
     @ApiModelProperty(

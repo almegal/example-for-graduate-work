@@ -1,6 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-import static ru.skypro.homework.util.UploadImage.uploadImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +23,11 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.util.UploadImage;
 
+/**
+ * Класс по работе с объявлениями
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,8 +49,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     @Transactional
-    public AdDto addAd(CreateOrUpdateAdDto createAd,
-                       MultipartFile image) {
+    public AdDto addAd(CreateOrUpdateAdDto createAd, MultipartFile file) {
         Ad ad = new Ad();
 
         String username = securityService.getAuthenticatedUserName();
@@ -56,13 +58,16 @@ public class AdServiceImpl implements AdService {
         adMapper.updateAdFromUpdateAdDto(createAd, ad);
         ad.setAuthor(user);
         try {
-            String urlImage = uploadImage(image).replace("/", "");
+            final String s = UploadImage.uploadImage(file);
+            String urlImage = s.replace("/", "");
             ad.setImageUrl(urlImage);
+            // В сущность Ad сохраняется путь к файлу, состоящий только из имени файла (без имени папки и "/")
+
         } catch (IOException e) {
+            log.error("Error uploading image file path = {}", ad.getImageUrl(), e);
             throw new RuntimeException(e);
         }
         adRepository.save(ad);
-
         return adMapper.toDto(ad);
     }
 
@@ -74,10 +79,9 @@ public class AdServiceImpl implements AdService {
 
     @Override
     @PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#id)")
-    @Transactional
     public void removeAd(Long id) throws IOException {
         Ad ad = findAdById(id);
-        Path path = Path.of(ad.getImageUrl());
+        Path path = Path.of("images/" + ad.getImageUrl());
         Files.deleteIfExists(path);
         adRepository.deleteById(ad.getId());
     }
@@ -107,13 +111,17 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
+    @PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#id)")
     @Transactional
     public AdDto updateImageAd(Long id, MultipartFile file) {
         Ad ad = findAdById(id);
         try {
-            String urlImage = uploadImage(file).replace("/", "");
+            String urlImage = UploadImage.uploadImage(file).replace("/", "");
             ad.setImageUrl(urlImage);
+            // В сущность Ad сохраняется путь к файлу, состоящий только из имени файла (без имени папки и "/")
+
         } catch (IOException e) {
+            log.error("Error uploading image file path = {}", ad.getImageUrl(), e);
             throw new RuntimeException(e);
         }
         adRepository.save(ad);
@@ -127,11 +135,11 @@ public class AdServiceImpl implements AdService {
                 .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
     }
 
+    @Override
     public boolean isAdCreatorOrAdmin(Long id) {
         Ad ad = findAdById(id);
         String email = securityService.getAuthenticatedUserName();
         User user = userService.getUserByEmailFromDb(email);
-        return user.getRole() == Role.ADMIN ||
-                email.equals(ad.getAuthor().getEmail());
+        return user.getRole() == Role.ADMIN || email.equals(ad.getAuthor().getEmail());
     }
 }

@@ -26,20 +26,28 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Email
     @Column(unique = true)
     private String email;
+
     @NotBlank
     private String firstName;
+
     @NotBlank
     private String lastName;
+
     @NotBlank
     private String phone;
+
     @NotNull
     @ColumnDefault(value = "0")
     @Enumerated(EnumType.ORDINAL)
     private Role role;
+
     private String image;
+    // Путь к файлу на диске, состоящий только из имени файла и /
+
     @NotBlank
     private String password;
 }

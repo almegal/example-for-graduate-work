@@ -33,7 +33,7 @@ import ru.skypro.homework.service.ImageUploadService;
 @RequiredArgsConstructor
 @RequestMapping("/ads")
 @Api(tags = "Объявления", value = "API для работы с объявлениями")
-public class AdsController {
+public class AdController {
 
     private final AdService adsService;
     private final ImageUploadService imageUploadService;
@@ -62,12 +62,15 @@ public class AdsController {
                     code = 201,
                     message = "Created"),
             @ApiResponse(
+                    code = 400,
+                    message = "Bad Request"),
+            @ApiResponse(
                     code = 401,
                     message = "Unauthorized")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AdDto addAd(
-            @RequestPart("properties") CreateOrUpdateAdDto createAd,
+            @Valid @RequestPart("properties") CreateOrUpdateAdDto createAd,
             @RequestPart("image") MultipartFile image) {
         return adsService.addAd(createAd, image);
     }
@@ -122,6 +125,9 @@ public class AdsController {
                     code = 200,
                     message = "OK"),
             @ApiResponse(
+                    code = 400,
+                    message = "Bad Request"),
+            @ApiResponse(
                     code = 401,
                     message = "Unauthorized"),
             @ApiResponse(
@@ -132,8 +138,7 @@ public class AdsController {
                     message = "Not found")
     })
     @PatchMapping("/{id}")
-    public AdDto updateAd(@PathVariable Long id,
-                          @Valid @RequestBody CreateOrUpdateAdDto ad) {
+    public AdDto updateAd(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateAdDto ad) {
         return adsService.updateAd(id, ad);
     }
 
@@ -173,8 +178,7 @@ public class AdsController {
                     message = "Not found")
     })
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public AdDto updateImageAd(@PathVariable Long id,
-                               @RequestPart("image") MultipartFile file) {
+    public AdDto updateImageAd(@PathVariable Long id, @RequestPart("image") MultipartFile file) {
         return adsService.updateImageAd(id, file);
 
     }

@@ -13,7 +13,7 @@ import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.entity.User;
-import ru.skypro.homework.exception.IllegalArgumentException;
+import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.AdService;
@@ -54,39 +54,35 @@ public class CommentsServiceImpl implements CommentsService {
         comment.setAuthor(user);
 
         comment = commentRepository.save(comment);
-
         return commentMapper.toDto(comment);
     }
 
     @Override
-    @PreAuthorize("@commentsServiceImpl.isAdCreatorOrAdmin(#commentId)")
+    @PreAuthorize("@commentsServiceImpl.isCommentCreatorOrAdmin(#commentId)")
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteComment(Long adId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Комментарий не найден"));
+                .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
         commentRepository.delete(comment);
     }
 
     @Override
-    @PreAuthorize("@commentsServiceImpl.isAdCreatorOrAdmin(#commentId)")
+    @PreAuthorize("@commentsServiceImpl.isCommentCreatorOrAdmin(#commentId)")
     @Transactional
-    public CommentDto updateComment(Long adId,
-                                    Long commentId,
-                                    CreateOrUpdateCommentDto updateCommentDto) {
+    public CommentDto updateComment(Long adId, Long commentId, CreateOrUpdateCommentDto updateCommentDto) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Комментарий не найден"));
+                .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
         commentMapper.toEntityFromCreateUpdatDto(updateCommentDto, comment);
         Comment updatedComment = commentRepository.save(comment);
         return commentMapper.toDto(updatedComment);
     }
 
-    public boolean isAdCreatorOrAdmin(Long id) {
-        String email = securityService.getAuthenticatedUserName();
+    @Override
+    public boolean isCommentCreatorOrAdmin(Long id) {
         Comment comment = commentRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Комментарий не найден")
-        );
+                () -> new NotFoundException("Комментарий не найден"));
+        String email = securityService.getAuthenticatedUserName();
         User user = userService.getUserByEmailFromDb(email);
-        return user.getRole() == Role.ADMIN ||
-                email.equals(comment.getAuthor().getEmail());
+        return user.getRole() == Role.ADMIN || email.equals(comment.getAuthor().getEmail());
     }
 }

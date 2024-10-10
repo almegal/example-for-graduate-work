@@ -18,12 +18,10 @@ public interface UserMapper {
 
     User toEntity(UserDto dto);
 
-    void updateUserFromUpdateUserDto(UpdateUserDto dto,
-                                     @MappingTarget User user);
+    void updateUserFromUpdateUserDto(UpdateUserDto dto, @MappingTarget User user);
 
     @Mapping(source = "newPassword", target = "password")
-    void updateUserPasswordFromDto(NewPasswordDto dto,
-                                   @MappingTarget User user);
+    void updateUserPasswordFromDto(NewPasswordDto dto, @MappingTarget User user);
 
     @Mapping(source = "username", target = "email")
     User toEntityFromRegisterDto(RegisterDto dto);

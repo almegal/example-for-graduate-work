@@ -10,6 +10,7 @@ import ru.skypro.homework.entity.User;
 
 @RequiredArgsConstructor
 public class UserSecurityDetails implements UserDetails {
+
     private final User user;
 
     @Override
@@ -27,21 +28,34 @@ public class UserSecurityDetails implements UserDetails {
         return user.getEmail();
     }
 
+    /**
+     * @return true, если не истек срок действия аккаунта, иначе - false
+     */
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * @return true, если аккаунт не заблокирован, иначе - false
+     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * @return true, если не истек срок действия учетных данных, иначе - false
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * @return true, если есть доступ, иначе - false
+     */
     @Override
     public boolean isEnabled() {
         return true;
