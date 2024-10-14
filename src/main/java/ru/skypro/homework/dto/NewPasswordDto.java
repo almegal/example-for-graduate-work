@@ -4,10 +4,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import ru.skypro.homework.util.OpenApiConstant;
 
 @Data
+@Builder
 @ApiModel(value = "NewPassword", description = "Модель для обновления пароля")
 public class NewPasswordDto {
 

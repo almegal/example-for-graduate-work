@@ -77,13 +77,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Для мокирования статических методов, вызываемых в тестируемых методах       -->
+        <!-- Не работает на версии java 21       -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
-
 
         <!-- Основная зависимость MapStruct -->
         <dependency>
@@ -125,27 +126,27 @@
                 </configuration>
             </plugin>
             <!-- Checkstyle Plugin -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--                <version>3.2.0</version>-->
-<!--                <configuration>-->
-<!--                    <configLocation>checkstyle.xml</configLocation>-->
-<!--                    <outputFileFormat>xml</outputFileFormat>-->
-<!--                    <outputDirectory>${project.build.directory}/checkstyle-reports</outputDirectory>-->
-<!--                    <consoleOutput>true</consoleOutput>-->
-<!--                    <failsOnError>false</failsOnError>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>checkstyle</id>-->
-<!--                        <phase>validate</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>checkstyle</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <outputFileFormat>xml</outputFileFormat>
+                    <outputDirectory>${project.build.directory}/checkstyle-reports</outputDirectory>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Плагин для генерации кода MapStruct -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

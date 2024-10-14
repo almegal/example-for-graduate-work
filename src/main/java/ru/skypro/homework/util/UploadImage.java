@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class UploadImage {
 
-
     /**
      * Метод по загрузке файла в файловую систему и сохранению пути к файлу (имени файла без имени папки и "/")
      * в сущности Ad и User

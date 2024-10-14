@@ -8,7 +8,9 @@ import java.io.IOException;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,8 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.exception.NotFoundException;
+import ru.skypro.homework.exception.UnauthorizedException;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageUploadService;
 
@@ -69,10 +73,16 @@ public class AdController {
                     message = "Unauthorized")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public AdDto addAd(
+    public ResponseEntity<?> addAd(
             @Valid @RequestPart("properties") CreateOrUpdateAdDto createAd,
             @RequestPart("image") MultipartFile image) {
-        return adsService.addAd(createAd, image);
+        try {
+            return ResponseEntity.ok(adsService.addAd(createAd, image));
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
 
@@ -180,6 +190,5 @@ public class AdController {
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AdDto updateImageAd(@PathVariable Long id, @RequestPart("image") MultipartFile file) {
         return adsService.updateImageAd(id, file);
-
     }
 }

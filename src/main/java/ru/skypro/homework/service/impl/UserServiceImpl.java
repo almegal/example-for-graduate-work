@@ -4,7 +4,6 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,6 +106,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User getUserByEmailFromDb(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 }

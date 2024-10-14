@@ -58,9 +58,9 @@ public class AdServiceImpl implements AdService {
         adMapper.updateAdFromUpdateAdDto(createAd, ad);
         ad.setAuthor(user);
         try {
-            final String s = UploadImage.uploadImage(file);
-            String urlImage = s.replace("/", "");
-            ad.setImageUrl(urlImage);
+            final String urlImage = UploadImage.uploadImage(file);
+            String newUrlImage = urlImage.replace("/", "");
+            ad.setImageUrl(newUrlImage);
             // В сущность Ad сохраняется путь к файлу, состоящий только из имени файла (без имени папки и "/")
 
         } catch (IOException e) {

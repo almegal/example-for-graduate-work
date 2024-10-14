@@ -2,13 +2,8 @@ package ru.skypro.homework;
 
 import java.util.List;
 import java.util.Random;
-import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
-import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.dto.RegisterDto;
-import ru.skypro.homework.dto.Role;
-import ru.skypro.homework.dto.UpdateUserDto;
-import ru.skypro.homework.dto.UserDto;
+
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.entity.User;
@@ -31,7 +26,7 @@ public class ConstantGeneratorFotTest {
     public static final String NEW_USER_PASSWORD = "notsecretpassword";
 
     public static final Long USER_ADMIN_ID = new Random().nextLong();
-    public static final String USER_ADMIN_EMAIL = "somecool_2@mail.com";
+    public static final String USER_ADMIN_EMAIL = "somecool_admin@mail.com";
     public static final String USER_ADMIN_FIRST_NAME = "Mark";
     public static final String USER_ADMIN_LAST_NAME = "Smit";
     public static final String USER_ADMIN_PHONE = "9112223355";
@@ -53,6 +48,7 @@ public class ConstantGeneratorFotTest {
     public static final String AD_NEW_TITLE_1 = "New title 1";
     public static final Integer AD_NEW_PRICE_1 = 4000;
     public static final String AD_NEW_DESCRIPTION_1 = "New description 1";
+    public static final String AD_NEW_IMAGE_1 = "65.jpg";
 
     public static final Long AD_ID_2 = new Random().nextLong();
     public static final String AD_TITLE_2 = "Title 2";
@@ -61,10 +57,6 @@ public class ConstantGeneratorFotTest {
     public static final String AD_IMAGE_2 = "60.jpg";
     public static final User AD_AUTHOR_2 = userGenerator();
     public static final Long AD_AUTHOR_ID_2 = AD_AUTHOR_2.getId();
-    public static final String AD_AUTHOR_EMAIL_2 = AD_AUTHOR_2.getEmail();
-    public static final String AD_AUTHOR_FIRST_NAME_2 = AD_AUTHOR_2.getFirstName();
-    public static final String AD_AUTHOR_LAST_NAME_2 = AD_AUTHOR_2.getLastName();
-    public static final String AD_AUTHOR_PHONE_2 = AD_AUTHOR_2.getPhone();
 
 
     public static User userGenerator() {
@@ -123,6 +115,13 @@ public class ConstantGeneratorFotTest {
                 .build();
     }
 
+    public static NewPasswordDto newPasswordDtoGenerator() {
+        return NewPasswordDto.builder()
+                .currentPassword(USER_PASSWORD)
+                .newPassword(NEW_USER_PASSWORD)
+                .build();
+    }
+
     /**
      * @return первое объявление
      */
@@ -133,6 +132,34 @@ public class ConstantGeneratorFotTest {
         ad.setDescription(AD_DESCRIPTION_1);
         ad.setPrice(AD_PRICE_1);
         ad.setImageUrl(AD_IMAGE_1);
+        ad.setAuthor(AD_AUTHOR_1);
+        return ad;
+    }
+
+    /**
+     * @return первое обновленное объявление (текст)
+     */
+    public static Ad newAdGenerator1() {
+        Ad ad = new Ad();
+        ad.setId(AD_ID_1);
+        ad.setTitle(AD_NEW_TITLE_1);
+        ad.setDescription(AD_NEW_DESCRIPTION_1);
+        ad.setPrice(AD_NEW_PRICE_1);
+        ad.setImageUrl(AD_IMAGE_1);
+        ad.setAuthor(AD_AUTHOR_1);
+        return ad;
+    }
+
+    /**
+     * @return первое обновленное объявление (путь к картинке)
+     */
+    public static Ad newAdGenerator2() {
+        Ad ad = new Ad();
+        ad.setId(AD_ID_1);
+        ad.setTitle(AD_TITLE_1);
+        ad.setDescription(AD_DESCRIPTION_1);
+        ad.setPrice(AD_PRICE_1);
+        ad.setImageUrl(AD_NEW_IMAGE_1);
         ad.setAuthor(AD_AUTHOR_1);
         return ad;
     }
@@ -267,9 +294,8 @@ public class ConstantGeneratorFotTest {
     }
 
     /**
-     * @return модель обновленного объявления
+     * @return модель первого обновленного объявления (текста)
      */
-
     public static AdDto newAdDtoGenerator() {
         return AdDto.builder()
                 .author(AD_AUTHOR_ID_1)
@@ -277,6 +303,19 @@ public class ConstantGeneratorFotTest {
                 .pk(AD_ID_1)
                 .title(AD_NEW_TITLE_1)
                 .price(AD_NEW_PRICE_1)
+                .build();
+    }
+
+    /**
+     * @return модель первого обновленного объявления (картинки)
+     */
+    public static AdDto newAdDtoGenerator2() {
+        return AdDto.builder()
+                .author(AD_AUTHOR_ID_1)
+                .image("/image/" + AD_NEW_IMAGE_1)
+                .pk(AD_ID_1)
+                .title(AD_TITLE_1)
+                .price(AD_PRICE_1)
                 .build();
     }
 }
