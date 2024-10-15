@@ -76,8 +76,9 @@ public class AdController {
     public ResponseEntity<?> addAd(
             @Valid @RequestPart("properties") CreateOrUpdateAdDto createAd,
             @RequestPart("image") MultipartFile image) {
+
         try {
-            return ResponseEntity.ok(adsService.addAd(createAd, image));
+            return ResponseEntity.status(HttpStatus.CREATED).body(adsService.addAd(createAd, image));
         } catch (NotFoundException e) {
             return ResponseEntity.badRequest().build();
         } catch (UnauthorizedException e) {
@@ -123,8 +124,9 @@ public class AdController {
                     message = "Not found")
     })
     @DeleteMapping("/{id}")
-    public void removeAd(@PathVariable Long id) throws IOException {
+    public ResponseEntity<Void> removeAd(@PathVariable Long id) throws IOException {
         adsService.removeAd(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @ApiOperation(value = "Обновление информации об объявлении",

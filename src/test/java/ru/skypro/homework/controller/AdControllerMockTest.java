@@ -122,17 +122,9 @@ public class AdControllerMockTest {
     }
 
 
-    //@WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testGetAds_Success() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findAll()).thenReturn(ads);
         when(adMapper.toDtos(anyList())).thenReturn(adsDto);
@@ -156,22 +148,24 @@ public class AdControllerMockTest {
   }
 
     @Disabled("Тест временно не работает")
-    //@WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testAddAd_Success() throws Exception {
 
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
+        Path path = Path.of("images/" + AD_IMAGE_1);
+        String contentType = Files.probeContentType(path);
+        byte[] content = Files.readAllBytes(path);
+        MockMultipartFile image = new MockMultipartFile("image", AD_IMAGE_1, contentType, content);
 
-        MultipartFile image = mock(MultipartFile.class);
-        when(image.getBytes()).thenReturn(new byte[]{});
+        //when(image.getBytes()).thenReturn(new byte[]{});
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
+        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(adDto1);
 
-        when(adService.addAd(eq(createOrUpdateAdDto1), any(MultipartFile.class))).thenReturn(adDto1);
+
+        //when(adService.addAd(eq(createOrUpdateAdDto1), any(MultipartFile.class))).thenReturn(adDto1);
 
 //        MockMultipartFile propertiesJson = new MockMultipartFile(
 //                "properties",
@@ -195,17 +189,9 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    //@WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testGetExtendedAd_Success() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(adMapper.toExtendedDto(any(Ad.class))).thenReturn(extendedAdDto);
@@ -229,11 +215,11 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.phone").value(extendedAdDto.getPhone()));
     }
 
-    //@WithAnonymous
+    @WithAnonymousUser
     @Test
     public void testGetExtendedAd_Unauthorized() throws Exception {
 
-        when(userSecurityDetails.getUsername()).thenReturn(null);
+        //when(userSecurityDetails.getUsername()).thenReturn(null);
         when(userService.getUserByEmailFromDb(anyString()))
                 .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
 
@@ -244,17 +230,9 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
-    //@WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testGetExtendedAd_NotFound() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(1L)).thenThrow(new NotFoundException("Объявление не найдено"));
 
@@ -267,16 +245,9 @@ public class AdControllerMockTest {
 
     //@PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#id)")
     @Disabled("Тест временно не работает")
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_Success_1() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
@@ -292,16 +263,9 @@ public class AdControllerMockTest {
     }
 
     @Disabled("Тест временно не работает")
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_Success_2() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(userAdmin.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(securityService.getAuthenticatedUserName()).thenReturn(userAdmin.getEmail());
@@ -316,16 +280,41 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
+    @Disabled("Тест временно не работает")
+    @WithAnonymousUser
+    @Test
+    public void testRemoveAd_Unauthorized() throws Exception {
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+        when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/ads/{id}", ad1.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Disabled("Тест временно не работает")
+    @WithMockUser(username = USER_EMAIL)
+    @Test
+    public void testRemoveAd_NotFound() throws Exception {
+
+        when(adRepository.findById(1L)).thenThrow(new NotFoundException("Объявление не найдено"));
+        doNothing().when(adRepository).deleteById(1L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/ads/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_ForbiddenException_1() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
@@ -342,16 +331,9 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_ForbiddenException_2() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(userAdmin.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(securityService.getAuthenticatedUserName()).thenReturn(userAdmin.getEmail());
@@ -368,44 +350,9 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
-    @Disabled("Тест временно не работает")
-    @Test
-    public void testRemoveAd_Unauthorized() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(null);
-        when(userService.getUserByEmailFromDb(anyString()))
-                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/ads/{id}", ad1.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
-    }
 
     @Disabled("Тест временно не работает")
-    @Test
-    public void testRemoveAd_NotFound() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
-
-        when(adRepository.findById(1L)).thenThrow(new NotFoundException("Объявление не найдено"));
-        doNothing().when(adRepository).deleteById(1L);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/ads/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
-
-    @Disabled("Тест временно не работает")
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testUpdateAds_Success() throws Exception {
 
@@ -413,14 +360,6 @@ public class AdControllerMockTest {
         createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
         createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
         createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
@@ -439,16 +378,9 @@ public class AdControllerMockTest {
 
     }
 
+    @WithMockUser(username = USER_EMAIL)
     @Test
     public void testGetAdsByAuthenticatedUser_Success() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
@@ -473,16 +405,9 @@ public class AdControllerMockTest {
                         .value(adsDto.get(0).getPrice()));
     }
 
+    @WithAnonymousUser
     @Test
     public void testGetAdsByAuthenticatedUser_Unauthorized() throws Exception {
-
-        when(userSecurityDetails.getUsername()).thenReturn(user.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(
-                        userSecurityDetails,
-                        null,
-                        userSecurityDetails.getAuthorities())
-        );
 
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
