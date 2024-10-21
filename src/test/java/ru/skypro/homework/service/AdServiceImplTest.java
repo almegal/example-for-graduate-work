@@ -19,6 +19,7 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 import ru.skypro.homework.service.impl.SecurityServiceImpl;
+import ru.skypro.homework.service.impl.UserSecurityDetails;
 import ru.skypro.homework.util.UploadImage;
 
 import java.io.IOException;
@@ -48,6 +49,9 @@ class AdServiceImplTest {
 
     @Mock
     private SecurityServiceImpl securityService;
+
+    @Mock
+    private UserSecurityDetails userSecurityDetails;
 
     @InjectMocks
     private AdServiceImpl adService;
@@ -160,17 +164,14 @@ class AdServiceImplTest {
     @Test
     void testAddAdUser_ThrowsUnauthorizedException() {
 
-        when(securityService.getAuthenticatedUserName()).thenReturn(null);
-        when(userService.getUserByEmailFromDb(null)).thenThrow(new UnauthorizedException("Пользователь не авторизован"));
-        assertThrows(UnauthorizedException.class, () -> adService.addAd(createOrUpdateAdDto1, null));
-    }
-
-    @Test
-    void testAddAdUser_ThrowsNotFoundException() {
-
+        // Из контекста безопасности (spring) получаем логин пользователя
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
-        when(userService.getUserByEmailFromDb(user.getEmail())).thenThrow(new NotFoundException("Пользователь не найден"));
-        assertThrows(NotFoundException.class, () -> adService.addAd(createOrUpdateAdDto1, null));
+        // По логину извлекаем из базы данных пользователя. Если пользователь равен null (не найден),
+        // то выбрасывается соответствующее исключение
+        when(userService.getUserByEmailFromDb(user.getEmail()))
+                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+
+        assertThrows(UnauthorizedException.class, () -> adService.addAd(createOrUpdateAdDto1, null));
     }
 
     @Test
@@ -197,9 +198,21 @@ class AdServiceImplTest {
     @Test
     void testGetExtendedAd_ThrowsNotFoundException() {
 
-        when(adRepository.findById(anyLong())).thenThrow(new NotFoundException("Объявление не найдено"));
-        assertThrows(NotFoundException.class, () -> adService.getExtendedAd(ad1.getId()));
+        when(adRepository.findById(1L)).thenThrow(new NotFoundException("Объявление не найдено"));
+        assertThrows(NotFoundException.class, () -> adService.getExtendedAd(1L));
     }
+
+//    @Test
+//    void testGetExtendedAd_ThrowsUnauthorizedException() {
+//
+//        when(userSecurityDetails.getUsername()).thenReturn(null);
+//        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+//        when(adRepository.findById(ad1.getId())).thenReturn(Optional.ofNullable(ad1));
+//        when(userService.getUserByEmailFromDb(user.getEmail()))
+//                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+//
+//        assertThrows(UnauthorizedException.class, () -> adService.getExtendedAd(ad1.getId()));
+//    }
 
     @Test
     void testRemoveAd_Success() throws IOException {
@@ -215,6 +228,18 @@ class AdServiceImplTest {
         verify(adRepository, times(1)).findById(ad2.getId());
         verify(adRepository, times(1)).deleteById(ad2.getId());
     }
+
+//    @Test
+//    void testRemoveAd_ThrowsUnauthorizedException() {
+//
+//        when(userSecurityDetails.getUsername()).thenReturn(null);
+//        when(adRepository.findById(ad1.getId())).thenReturn(Optional.ofNullable(ad1));
+//        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+//        when(userService.getUserByEmailFromDb(user.getEmail()))
+//                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+//
+//        assertThrows(UnauthorizedException.class, () -> adService.removeAd(ad1.getId()));
+//    }
 
     @Test
     void testRemoveAd_ThrowsNotFoundException() {
@@ -257,6 +282,18 @@ class AdServiceImplTest {
         assertThrows(NotFoundException.class, () -> adService.updateAd(134L, createOrUpdateAdDto2));
     }
 
+//    @Test
+//    void testUpdateAd_ThrowsUnauthorizedException() {
+//
+//        when(userSecurityDetails.getUsername()).thenReturn(null);
+//        when(adRepository.findById(ad1.getId())).thenReturn(Optional.ofNullable(ad1));
+//        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+//        when(userService.getUserByEmailFromDb(user.getEmail()))
+//                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+//
+//        assertThrows(UnauthorizedException.class, () -> adService.updateAd(ad1.getId(), createOrUpdateAdDto2));
+//    }
+
     @Test
     void testGetAdsByAuthenticatedUser_Success() {
 
@@ -279,17 +316,10 @@ class AdServiceImplTest {
     @Test
     void testGetAdsByAuthenticatedUser_ThrowsUnauthorizedException() {
 
-        when(securityService.getAuthenticatedUserName()).thenReturn(null);
-        when(userService.getUserByEmailFromDb(null)).thenThrow(new UnauthorizedException("Пользователь не авторизован"));
-        assertThrows(UnauthorizedException.class, () -> adService.getAdsByAuthenticatedUser());
-    }
-
-    @Test
-    void testGetAdsByAuthenticatedUser_ThrowsNotFoundException() {
-
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
-        when(userService.getUserByEmailFromDb(user.getEmail())).thenThrow(new NotFoundException("Пользователь не найден"));
-        assertThrows(NotFoundException.class, () -> adService.getAdsByAuthenticatedUser());
+        when(userService.getUserByEmailFromDb(user.getEmail()))
+                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+        assertThrows(UnauthorizedException.class, () -> adService.getAdsByAuthenticatedUser());
     }
 
     @Test
@@ -390,7 +420,7 @@ class AdServiceImplTest {
         doReturn(user.getEmail()).when(securityService).getAuthenticatedUserName();
         doReturn(user).when(userService).getUserByEmailFromDb(anyString());
         // Изменяем у объявления поле - пользователь
-        ad1.getAuthor().setEmail("test@gmail.com");
+        ad1.getAuthor().setEmail(NEW_USER_EMAIL);
 
         // Пользователь не является автором объявления
         boolean actualIsAuthorOfAd = adService.isAdCreatorOrAdmin(ad1.getId());

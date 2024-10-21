@@ -27,7 +27,6 @@ import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.exception.NotFoundException;
-import ru.skypro.homework.exception.UnauthorizedException;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageUploadService;
 
@@ -40,7 +39,6 @@ import ru.skypro.homework.service.ImageUploadService;
 public class AdController {
 
     private final AdService adsService;
-    private final ImageUploadService imageUploadService;
 
 
     @ApiOperation(value = "Получение всех объявлений",
@@ -76,14 +74,7 @@ public class AdController {
     public ResponseEntity<?> addAd(
             @Valid @RequestPart("properties") CreateOrUpdateAdDto createAd,
             @RequestPart("image") MultipartFile image) {
-
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(adsService.addAd(createAd, image));
-        } catch (NotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(adsService.addAd(createAd, image));
     }
 
 

@@ -46,7 +46,7 @@ public class User {
     private Role role;
 
     private String image;
-    // Путь к файлу на диске, состоящий только из имени файла и /
+    // Путь к файлу на диске, состоящий только из "/" и имени файла
 
     @NotBlank
     private String password;

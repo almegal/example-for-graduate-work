@@ -19,7 +19,7 @@ import ru.skypro.homework.service.AuthService;
 import ru.skypro.homework.service.UserService;
 
 /**
- * Класс по аутентификации и регистрации пользователя
+ * Класс по регистрации и аутентификации пользователя
  */
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,32 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserMapper userMapper;
+
+
+    /**
+     * Метод по регистрации пользователя.
+     * Осуществляем в базе данных поиск пользователя по введенному им логину.
+     * Если в базе данных уже зарегистрирован пользователь с таким логином,
+     * то будет выброшено соответствующее исключение.
+     * Передаем в параметры метода encode() пароль, извлеченный из модели для регистрации пользователя,
+     * и уже закодированный пароль сохраняем в модель для регистрации пользователя.
+     * Через маппер сохраняем логин и пароль пользователя в объект User, а User сохраняем в базу данных.
+     */
+    @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public boolean register(RegisterDto registerDto) {
+//        if (userRepository.existsByEmail(registerDto.getUsername())) {
+        if (userService.getUserByEmailFromDb(registerDto.getUsername()) != null) {
+            log.info("Пользователь с таким логином = {} уже зарегистрирован", registerDto.getUsername());
+            throw new UserAlreadyRegisteredException("Пользователь с таким логином уже зарегистрирован");
+        }
+        registerDto.setPassword(encoder.encode(registerDto.getPassword()));
+        User user = userMapper.toEntityFromRegisterDto(registerDto);
+        userRepository.save(user);
+        log.info("Регистрация прошла успешно! Логин пользователя {}", registerDto.getUsername());
+        return true;
+    }
+
 
     /**
      * Метод по аутентификации пользователя.
@@ -54,28 +80,5 @@ public class AuthServiceImpl implements AuthService {
         return encoder.matches(loginDto.getPassword(), userDetails.getPassword());
     }
 
-
-    /**
-     * Метод по регистрации пользователя.
-     * Осуществляем в базе данных поиск пользователя по введенному им логину.
-     * Если в базе данных уже зарегистрирован пользователь с таким логином,
-     * то будет выброшено соответствующее исключение.
-     * Передаем в параметры метода encode() пароль, извлеченный из модели для регистрации пользователя,
-     * и уже закодированный пароль сохраняем в модель для регистрации пользователя.
-     * Через маппер сохраняем логин и пароль пользователя в объект User, а User сохраняем в базу данных.
-     */
-    @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public boolean register(RegisterDto registerDto) {
-        if (userRepository.existsByEmail(registerDto.getUsername())) {
-            log.info("Пользователь с таким логином = {} уже зарегистрирован", registerDto.getUsername());
-            throw new UserAlreadyRegisteredException("Пользователь с таким логином уже зарегистрирован");
-        }
-        registerDto.setPassword(encoder.encode(registerDto.getPassword()));
-        User user = userMapper.toEntityFromRegisterDto(registerDto);
-        userRepository.save(user);
-        log.info("Регистрация прошла успешно! Логин пользователя {}", registerDto.getUsername());
-        return true;
-    }
 }
 

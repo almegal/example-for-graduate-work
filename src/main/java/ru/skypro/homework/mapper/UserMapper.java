@@ -14,6 +14,7 @@ import ru.skypro.homework.entity.User;
 public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    @Mapping(target = "image", expression = "java(user.getImage())")
     UserDto toDto(User user);
 
     User toEntity(UserDto dto);

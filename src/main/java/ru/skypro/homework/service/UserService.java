@@ -74,8 +74,7 @@ public interface UserService {
 //    boolean emailExists(String email);
 
     /**
-     * Этот метод переопределен из интерфейса UserDetailsManager
-     * для настройки процесса аутентификации для Spring Security.
+     * Этот метод переопределен из интерфейса UserDetailsManager для настройки процесса аутентификации для Spring Security.
      * Он извлекает данные пользователя, включая имя пользователя, пароль и роль, для создания объекта UserDetails.
      * Метод использует {@link UserService#getUserByEmailFromDb(String)} 
      * @param username - логин пользователя

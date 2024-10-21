@@ -12,7 +12,6 @@ import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.User;
-import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
@@ -51,7 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)                           // Метод будет выполняться в транзакции только для чтения
     public UserDto getAuthenticatedUser() {
         String email = securityService.getAuthenticatedUserName();
         User user = getUserByEmailFromDb(email);
@@ -75,7 +74,7 @@ public class UserServiceImpl implements UserService {
         try {
             String urlImage = UploadImage.uploadImage(file);
             user.setImage(urlImage);
-            // В сущность User сохраняется путь к файлу, состоящий только из имени файла (без имени папки и "/")
+            // В сущность User сохраняется путь к файлу, состоящий из "/" и имени файла (без имени папки)
         } catch (IOException e) {
             log.error("Error uploading image file path = {}", user.getImage(), e);
             throw new RuntimeException(e);
@@ -106,8 +105,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User getUserByEmailFromDb(String email) {
-        return userRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

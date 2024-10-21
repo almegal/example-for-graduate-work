@@ -24,7 +24,7 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.User;
 
 // toDo Переписать через параметарайзет тест (argsProvider? или просто сурс)
-// toDo задача команде на тесты маппинга по аналогии
+
 public class UserMapperTest {
     static final User USER_ENTITY = userGenerator();
     static final UserDto USER_DTO = userDtoGenerator();
@@ -36,7 +36,7 @@ public class UserMapperTest {
     @Test
     @DisplayName("Корректно маппится из User в UserDto")
     public void shouldCorrectConvertFromEntityUserToDtoWithCorrectValue() {
-        UserDto expexted = UserDto.builder()
+        UserDto expected = UserDto.builder()
                 .id(USER_ID)
                 .email(USER_EMAIL)
                 .role(USER_ROLE)
@@ -48,14 +48,13 @@ public class UserMapperTest {
 
         UserDto actual = mapper.toDto(USER_ENTITY);
         assertNotNull(actual);
-        assertEquals(expexted.getId(), actual.getId());
-        assertEquals(expexted.getEmail(), actual.getEmail());
-        assertEquals(expexted.getLastName(), actual.getLastName());
-        assertEquals(expexted.getFirstName(), actual.getFirstName());
-        // расскоментировать после уточнения и рефакторинга по полю image
-//        assertEquals(expexted.getImage(), actual.getImage());
-        assertEquals((expexted.getPhone()), actual.getPhone());
-        assertEquals(expexted.getRole(), actual.getRole());
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getEmail(), actual.getEmail());
+        assertEquals(expected.getLastName(), actual.getLastName());
+        assertEquals(expected.getFirstName(), actual.getFirstName());
+        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals((expected.getPhone()), actual.getPhone());
+        assertEquals(expected.getRole(), actual.getRole());
     }
 
     @Test
@@ -76,8 +75,7 @@ public class UserMapperTest {
         assertEquals(expected.getEmail(), actual.getEmail());
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getFirstName(), actual.getFirstName());
-        // расскоментировать после уточнения и рефакторинга по полю image
-//        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getImage(), actual.getImage());
         assertEquals((expected.getPhone()), actual.getPhone());
         assertEquals(expected.getRole(), actual.getRole());
     }
@@ -97,8 +95,7 @@ public class UserMapperTest {
         assertEquals(expected.getEmail(), actual.getEmail());
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getFirstName(), actual.getFirstName());
-        // расскоментировать после уточнения и рефакторинга по полю image
-//        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getImage(), actual.getImage());
         assertEquals((expected.getPhone()), actual.getPhone());
         assertEquals(expected.getRole(), actual.getRole());
     }
@@ -120,8 +117,7 @@ public class UserMapperTest {
         assertEquals(expected.getEmail(), actual.getEmail());
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getFirstName(), actual.getFirstName());
-        // расскоментировать после уточнения и рефакторинга по полю image
-//        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getImage(), actual.getImage());
         assertEquals((expected.getPhone()), actual.getPhone());
         assertEquals(expected.getRole(), actual.getRole());
     }

@@ -13,6 +13,7 @@ import ru.skypro.homework.util.OpenApiConstant;
 @Builder
 @ApiModel(value = "UpdateUser", description = "Модель для обновления информации о пользователе")
 public class UpdateUserDto {
+
     @NotBlank(message = "Имя не может быть пустым или состоять только из пробелов")
     @Size(min = 3, max = 10, message = "Имя должно быть от 3 до 10 символов")
     @ApiModelProperty(

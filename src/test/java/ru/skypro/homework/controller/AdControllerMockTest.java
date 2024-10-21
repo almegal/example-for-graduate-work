@@ -3,20 +3,14 @@ package ru.skypro.homework.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,11 +18,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.ConstantGeneratorFotTest;
-import ru.skypro.homework.config.WebSecurityConfig;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.NotFoundException;
@@ -41,16 +33,14 @@ import ru.skypro.homework.service.impl.AdServiceImpl;
 import ru.skypro.homework.service.impl.SecurityServiceImpl;
 import ru.skypro.homework.service.impl.UserSecurityDetails;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static ru.skypro.homework.ConstantGeneratorFotTest.*;
-import static ru.skypro.homework.ConstantGeneratorFotTest.AD_IMAGE_1;
 
 @WebMvcTest(controllers = AdController.class)
 public class AdControllerMockTest {
@@ -84,6 +74,7 @@ public class AdControllerMockTest {
 
     private ObjectMapper objectMapper;
     private User user;
+    private User newUser;
     private User userAdmin;
     private Ad ad1;
     private Ad newAd1;
@@ -99,11 +90,13 @@ public class AdControllerMockTest {
     private CreateOrUpdateAdDto createOrUpdateAdDto1;
     private CreateOrUpdateAdDto createOrUpdateAdDto2;
 
+
     @BeforeEach
     void setUp() {
 
         objectMapper = new ObjectMapper();
         user = ConstantGeneratorFotTest.userGenerator();
+        newUser = ConstantGeneratorFotTest.newUserGenerator_1();
         userAdmin = ConstantGeneratorFotTest.userAdminGenerator();
         ad1 = ConstantGeneratorFotTest.adGenerator1();
         newAd1 = ConstantGeneratorFotTest.newAdGenerator1();
@@ -145,33 +138,24 @@ public class AdControllerMockTest {
                         .value(adsDto.get(0).getTitle()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.results[0].price")
                         .value(adsDto.get(0).getPrice()));
-  }
+    }
 
-    @Disabled("Тест временно не работает")
     @WithMockUser(username = USER_EMAIL)
     @Test
     public void testAddAd_Success() throws Exception {
 
-        Path path = Path.of("images/" + AD_IMAGE_1);
-        String contentType = Files.probeContentType(path);
-        byte[] content = Files.readAllBytes(path);
-        MockMultipartFile image = new MockMultipartFile("image", AD_IMAGE_1, contentType, content);
+//        Path path = Path.of("images/" + AD_IMAGE_1);
+//        String contentType = Files.probeContentType(path);
+//        byte[] content = Files.readAllBytes(path);
+//        MockMultipartFile image = new MockMultipartFile("image", AD_IMAGE_1, contentType, content);
 
-        //when(image.getBytes()).thenReturn(new byte[]{});
-        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
-        when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
-        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
-        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
-        when(adMapper.toDto(any(Ad.class))).thenReturn(adDto1);
-
-
-        //when(adService.addAd(eq(createOrUpdateAdDto1), any(MultipartFile.class))).thenReturn(adDto1);
+        MultipartFile image = mock(MultipartFile.class);
 
 //        MockMultipartFile propertiesJson = new MockMultipartFile(
-//                "properties",
-//                "test.jpg",
-//                "application/json",
-//                objectMapper.writeValueAsBytes(createOrUpdateAdDto1));
+//                 "properties",
+//                  "test.jpg",
+//                 "application/json",
+//                 objectMapper.writeValueAsBytes(createOrUpdateAdDto1));
 
         MockMultipartFile propertiesJson = new MockMultipartFile(
                 "properties",
@@ -179,14 +163,74 @@ public class AdControllerMockTest {
                 "application/json",
                 "{\"title\": \"Title 1\", \"price\": 5000, \"description\": \"Description 1\"}".getBytes());
 
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(anyString())).thenReturn(user);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
+        when(adRepository.save(any(Ad.class))).thenReturn(ad1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(adDto1);
+
         mockMvc.perform(MockMvcRequestBuilders
                         .multipart("/ads")
                         .file("image", image.getBytes())
                         .file(propertiesJson)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+
+        // CSRF защита: Использование метода .with(csrf()) в запросе позволяет mock деталям передать CSRF-токен.
+        // Если в вашем приложении включена защита от Cross-Site Request Forgery (CSRF), Spring Security требует,
+        // чтобы все изменяющие запросы (например, POST, PUT, DELETE) содержали действительный CSRF-токен.
+        // Иначе запросы будут отклонены с ошибкой 403 Forbidden. Добавив .with(csrf()), вы создаете валидный токен для теста.
+    }
+
+    @Test
+    public void testAddAd_UnauthorizedException() throws Exception {
+
+        MultipartFile image = mock(MultipartFile.class);
+        MockMultipartFile propertiesJson = new MockMultipartFile(
+                "properties",
+                "properties.json",
+                "application/json",
+                "{\"title\": \"Title 1\", \"price\": 5000, \"description\": \"Description 1\"}".getBytes());
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail()))
+                 .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads")
+                        .file("image", image.getBytes())
+                        .file(propertiesJson)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @WithMockUser
+    @Test
+    public void testAddAd_InvalidData() throws Exception {
+
+        MultipartFile image = mock(MultipartFile.class);
+        MockMultipartFile propertiesJson = new MockMultipartFile(
+                "properties",
+                "properties.json",
+                "application/json",
+                "{\"title\": \"Abc\", \"price\": 12_000_000, \"description\": \"Description 1\"}".getBytes());
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads")
+                        .file("image", image.getBytes())
+                        .file(propertiesJson)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @WithMockUser(username = USER_EMAIL)
@@ -215,12 +259,15 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.phone").value(extendedAdDto.getPhone()));
     }
 
-    @WithAnonymousUser
+    //@WithAnonymousUser
     @Test
     public void testGetExtendedAd_Unauthorized() throws Exception {
 
-        //when(userSecurityDetails.getUsername()).thenReturn(null);
-        when(userService.getUserByEmailFromDb(anyString()))
+        when(userSecurityDetails.getUsername()).thenReturn(null);
+        // Пользователь не авторизован. Вместо этого можно использовать аннотацию.
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail()))
                 .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -243,61 +290,66 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-    //@PreAuthorize("@adServiceImpl.isAdCreatorOrAdmin(#id)")
-    @Disabled("Тест временно не работает")
+
     @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_Success_1() throws Exception {
 
-        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        // Пользователь авторизовался с логина USER_EMAIL
+        // Пользователь является автором объявления
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
         doNothing().when(adRepository).deleteById(ad1.getId());
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/ads/{id}", ad1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
-    @Disabled("Тест временно не работает")
-    @WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = USER_ADMIN_EMAIL)
     @Test
     public void testRemoveAd_Success_2() throws Exception {
 
-        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        // Пользователь авторизовался с логина USER_ADMIN_EMAIL
+        // Пользователь не является автором объявления
         when(securityService.getAuthenticatedUserName()).thenReturn(userAdmin.getEmail());
         when(userService.getUserByEmailFromDb(userAdmin.getEmail())).thenReturn(userAdmin);
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
         when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
         doNothing().when(adRepository).deleteById(ad1.getId());
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/ads/{id}", ad1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
-    @Disabled("Тест временно не работает")
     @WithAnonymousUser
     @Test
     public void testRemoveAd_Unauthorized() throws Exception {
 
-        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        // Пользователь не авторизован
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
-        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
-        when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
+        when(userService.getUserByEmailFromDb(user.getEmail()))
+                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/ads/{id}", ad1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
-    @Disabled("Тест временно не работает")
     @WithMockUser(username = USER_EMAIL)
     @Test
     public void testRemoveAd_NotFound() throws Exception {
@@ -308,19 +360,19 @@ public class AdControllerMockTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/ads/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-    @WithMockUser(username = USER_EMAIL)
+    @WithMockUser(username = NEW_USER_EMAIL)
     @Test
     public void testRemoveAd_ForbiddenException_1() throws Exception {
 
+        // Пользователь авторизовался с логина NEW_USER_EMAIL, у которого роль User
+        when(securityService.getAuthenticatedUserName()).thenReturn(newUser.getEmail());
+        when(userService.getUserByEmailFromDb(newUser.getEmail())).thenReturn(newUser);
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
-        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
-        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
-        // Изменяем у объявления поле - пользователь
-        ad1.getAuthor().setEmail("test@gmail.com");
         when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(false);
         doNothing().when(adRepository).deleteById(ad1.getId());
 
@@ -335,11 +387,15 @@ public class AdControllerMockTest {
     @Test
     public void testRemoveAd_ForbiddenException_2() throws Exception {
 
+        // Пользователь авторизовался с логина USER_EMAIL, у которого роль User
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+        // Изменяем пользователя
+        user.setId(1L);
+        user.setEmail(NEW_USER_EMAIL);
+        // Изменяем у объявления поле - пользователь
+        ad1.setAuthor(user);
         when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
-        when(securityService.getAuthenticatedUserName()).thenReturn(userAdmin.getEmail());
-        when(userService.getUserByEmailFromDb(userAdmin.getEmail())).thenReturn(userAdmin);
-        // Изменяем у пользователя поле - роль
-        userAdmin.setRole(Role.USER);
         when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(false);
         doNothing().when(adRepository).deleteById(ad1.getId());
 
@@ -350,32 +406,163 @@ public class AdControllerMockTest {
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
-
-    @Disabled("Тест временно не работает")
     @WithMockUser(username = USER_EMAIL)
     @Test
-    public void testUpdateAds_Success() throws Exception {
+    public void testUpdateAd_Success_1() throws Exception {
 
         JSONObject createOrUpdateAdDto = new JSONObject();
         createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
         createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
         createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
 
-        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        // Пользователь авторизовался с логина USER_EMAIL, у которого роль User.
+        // Данный пользователь является автором объявления.
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
+        when(adRepository.save(any(Ad.class))).thenReturn(newAd1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(newAdDto1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/ads/{id}", ad1.getId())
+                        .content(createOrUpdateAdDto.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(AD_NEW_TITLE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(AD_NEW_PRICE_1));
+        // Поле "description" из jsonPath извлечь нельзя, так как метод возвращает AdDto (а в нем нет такого поля)
+    }
+
+    @WithMockUser(username = USER_ADMIN_EMAIL)
+    @Test
+    public void testUpdateAd_Success_2() throws Exception {
+
+        JSONObject createOrUpdateAdDto = new JSONObject();
+        createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
+        createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
+        createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
+
+        // Пользователь авторизовался с логина USER_ADMIN_EMAIL, у которого роль Admin.
+        // Данный пользователь не является автором объявления.
+        when(securityService.getAuthenticatedUserName()).thenReturn(userAdmin.getEmail());
+        when(userService.getUserByEmailFromDb(anyString())).thenReturn(userAdmin);
+
+        when(adRepository.findById(anyLong())).thenReturn(Optional.of(ad1));
+        when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(any(CreateOrUpdateAdDto.class), any(Ad.class));
+        when(adRepository.save(any(Ad.class))).thenReturn(newAd1);
+        when(adMapper.toDto(any(Ad.class))).thenReturn(newAdDto1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/ads/{id}", ad1.getId())
+                        .content(createOrUpdateAdDto.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(AD_NEW_TITLE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(AD_NEW_PRICE_1));
+        // Поле "description" из jsonPath извлечь нельзя, так как метод возвращает AdDto (а в нем нет такого поля)
+    }
+
+    //@WithMockUser
+    @Test
+    public void testUpdateAd_Unauthorized() throws Exception {
+
+        JSONObject createOrUpdateAdDto = new JSONObject();
+        createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
+        createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
+        createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
+
+        when(userSecurityDetails.getUsername()).thenReturn(null);
+        // Пользователь не авторизован. Можно использовать аннотацию.
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail()))
+                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/ads/{id}", ad1.getId())
+                        .content(createOrUpdateAdDto.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @WithMockUser(username = USER_EMAIL)
+    @Test
+    public void testUpdateAd_NotFoundException() throws Exception {
+
+        JSONObject createOrUpdateAdDto = new JSONObject();
+        createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
+        createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
+        createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+        when(adRepository.findById(1L)).thenThrow(new NotFoundException("Объявление не найдено"));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/ads/1")
+                        .content(createOrUpdateAdDto.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @WithMockUser(username = USER_EMAIL)
+    @Test
+    public void testUpdateAd_InvalidData() throws Exception {
+
+        JSONObject createOrUpdateAdDto = new JSONObject();
+        createOrUpdateAdDto.put("title", AD_INVALID_TITLE_1);
+        createOrUpdateAdDto.put("price", AD_INVALID_PRICE_1);
+        createOrUpdateAdDto.put("description", AD_INVALID_DESCRIPTION_1);
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
+        when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
+        when(adRepository.findById(anyLong())).thenReturn(Optional.ofNullable(ad1));
         when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .patch("/ads/{id}", ad1.getId())
                         .content(createOrUpdateAdDto.toString())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(AD_NEW_TITLE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(AD_NEW_PRICE_1));
-        // поле "description" из jsonPath извлечь нельзя, так как метод возвращает AdDto (а в нем нет такого поля)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
 
+    @WithMockUser(username = NEW_USER_EMAIL)
+    @Test
+    public void testUpdateAd_ForbiddenException() throws Exception {
+
+        // Пользователь авторизовался с логина NEW_USER_EMAIL, у которого роль User.
+        // Данный пользователь не является автором объявления.
+        JSONObject createOrUpdateAdDto = new JSONObject();
+        createOrUpdateAdDto.put("title", AD_NEW_TITLE_1);
+        createOrUpdateAdDto.put("price", AD_NEW_PRICE_1);
+        createOrUpdateAdDto.put("description", AD_NEW_DESCRIPTION_1);
+
+        when(securityService.getAuthenticatedUserName()).thenReturn(newUser.getEmail());
+        when(userService.getUserByEmailFromDb(newUser.getEmail())).thenReturn(newUser);
+        when(adRepository.findById(anyLong())).thenReturn(Optional.ofNullable(ad1));
+        when(adService.isAdCreatorOrAdmin(ad1.getId())).thenReturn(false);
+        doNothing().when(adMapper).updateAdFromUpdateAdDto(createOrUpdateAdDto2, ad1);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/ads/{id}", ad1.getId())
+                        .content(createOrUpdateAdDto.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     @WithMockUser(username = USER_EMAIL)
@@ -405,13 +592,17 @@ public class AdControllerMockTest {
                         .value(adsDto.get(0).getPrice()));
     }
 
-    @WithAnonymousUser
+    //@WithAnonymousUser
     @Test
     public void testGetAdsByAuthenticatedUser_Unauthorized() throws Exception {
 
+        when(userSecurityDetails.getUsername()).thenReturn(null);
+        // Пользователь не авторизован. Вместо этого можно использовать аннотацию.
+
         when(securityService.getAuthenticatedUserName()).thenReturn(user.getEmail());
         when(userService.getUserByEmailFromDb(user.getEmail())).thenReturn(user);
-        when(adRepository.findAllByUserId(user.getId())).thenThrow(new UnauthorizedException("Пользователь не авторизован"));
+        when(adRepository.findAllByUserId(user.getId()))
+                .thenThrow(new UnauthorizedException("Пользователь не авторизован"));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/ads/me")

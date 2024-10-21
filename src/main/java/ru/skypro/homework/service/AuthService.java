@@ -5,19 +5,9 @@ import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.repository.UserRepository;
 
 /**
- * Сервис по аутентификации и регистрации пользователя
+ * Сервис по регистрации и аутентификации пользователя
  */
 public interface AuthService {
-
-    /**
-     * Логика по аутентификации пользователя.
-     * Метод использует:
-     * {@link org.springframework.security.core.userdetails.UserDetailsService}
-     * {@link org.springframework.security.crypto.password.PasswordEncoder#matches(CharSequence, String)} 
-     * @param loginDto - модель пользователя {@link LoginDto}
-     * @return true, если аутентификация прошла успешно, иначе - будет выброшено соответствующее исключение
-     */
-    boolean login(LoginDto loginDto);
 
     /**
      * Логика по регистрации нового пользователя.
@@ -30,4 +20,16 @@ public interface AuthService {
      * @return true, если регистрация прошла успешно, иначе - будет выброшено соответствующее исключение
      */
     boolean register(RegisterDto registerDto);
+
+
+    /**
+     * Логика по аутентификации пользователя.
+     * Метод использует:
+     * {@link org.springframework.security.core.userdetails.UserDetailsService}
+     * {@link org.springframework.security.crypto.password.PasswordEncoder#matches(CharSequence, String)}
+     * @param loginDto - модель пользователя {@link LoginDto}
+     * @return true, если аутентификация прошла успешно, иначе - будет выброшено соответствующее исключение
+     */
+    boolean login(LoginDto loginDto);
+
 }

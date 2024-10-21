@@ -3,6 +3,7 @@ package ru.skypro.homework.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +25,6 @@ public class WebSecurityConfig {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/ads",
             "/register",
     };
 
@@ -43,6 +43,9 @@ public class WebSecurityConfig {
                                 authorization
                                         .mvcMatchers(AUTH_WHITELIST)
                                         .permitAll()
+                                        .mvcMatchers(HttpMethod.GET, "/ads").permitAll()
+                                        // оставляем открытым для не аутентифицированных пользователей доступ
+                                        // к методу getAds()
                                         .mvcMatchers("/ads/**", "/users/**")
                                         // закрываем доступ к методам указанных контроллеров не аутентифицированным
                                         // пользователям
